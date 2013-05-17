@@ -4,4 +4,4 @@
 # If you change this key, all old signed cookies will become invalid!
 # Make sure the secret is at least 30 characters and all random,
 # no regular words or you'll be exposed to dictionary attacks.
-Evefits::Application.config.secret_token = 'e427861c1b370d154d8da74a1165f9a3876f040a8422b5623a00ef90be71e04b993650985d851d9005cfb9663324ea1a68598f18cc7384a1792ad4a0c324e2a7'
+Evefits::Application.config.secret_token = '82bdc3232c7fd054513bedc3e78712a484361f44f6e9867cb03d581e00cf7754cdc1fdd77492f4843530d20e3ad5ee7307e36af62bd3c2df3a604eac39cc6763'
