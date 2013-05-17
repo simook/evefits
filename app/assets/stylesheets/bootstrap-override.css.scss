@@ -1,0 +1,80 @@
+@import "compass/css3";
+body {
+  background: url('bg.png');
+  font: 400 12px 'Open Sans',HelveticaNeue,Helvetica,Arial;
+  color: #707070;
+}
+a {
+  color: #78808a;
+}
+* {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  outline: none;
+}
+.container-fluid {
+  padding: 0px;
+}
+.area-top {
+  background: #ececec;
+  @include background(linear-gradient(top,#fafafa,#ececec));
+  @include box-shadow(0 2px 1px -1px rgba(0,0,0,0.07));
+  border-bottom: 1px solid #ccc;
+  position: relative;
+  width: 100%;
+  padding: 10px 15px;
+  @include box-sizing(border-box);
+  margin-bottom: 15px;
+  .header {
+    font-size: 14px;
+    h3 {
+      line-height: 35px;
+      color: #888;
+      font-weight: 300;
+      margin: 0;
+    }
+    h5 {
+      color: #aaa;
+      margin: 0;
+      font-weight: 300;
+    }
+    > * {
+     vertical-align: middle;
+     text-shadow: 0 1px #fff;
+    }
+  }
+}
+.sidebar-background {
+  position: fixed;
+  z-index: -1;
+  width: 200px;
+  background: #eaeaea;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-right: 1px solid #ccc;
+  .primary-sidebar-background {
+    width: 200px;
+    background: #11161A;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+  }
+}
+hr, li {
+  &.divider {
+    border: 0;
+    height: 1px;
+    @include background(linear-gradient(left,rgba(205,205,205,0),#cdcdcd,rgba(205,205,205,0)));
+    position: relative;
+  }
+}
+.main-content {
+  position: relative;
+  margin-left: 201px;
+}
+.padded {
+  padding: 15px;
+}

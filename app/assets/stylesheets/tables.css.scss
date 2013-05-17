@@ -1,0 +1,45 @@
+@import "compass/css3";
+table {
+  max-width: 100%;
+  background-color: transparent;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.table-normal {
+  margin-bottom: 0;
+  color: #5a6573;
+  thead {
+    td {
+      text-align: left;
+      font-size: 11px;
+      padding: 5px 5px 5px 10px;
+      color: #666;
+      height: 25px;
+      line-height: 25px;
+      font-weight: 600;
+      font-size: 12px;
+      text-shadow: 0 1px rgba(255,255,255,0.5);
+      background: #eaeaea;
+      @include background(linear-gradient(top,#fdfdfd,#eaeaea));
+      border-left: 1px solid #d1d2da;
+      border-right: 1px solid #d1d2da;
+      border-bottom: 1px solid #d1d2da;
+      &:first-child {
+        border-left: none;
+      }
+      &:last-child {
+       border-right: none;
+      }
+    }
+  }
+  tbody {
+    tr {
+      border-top: 1px solid #eaebef;
+    }
+    td {
+      padding: 7px 11px;
+      vertical-align: middle;
+      border-top: 1px solid #eaebef;
+    }
+  }
+}

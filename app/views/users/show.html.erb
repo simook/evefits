@@ -1,3 +1,38 @@
-<h3>User</h3>
-<p>User: <%= @user.name %></p>
-<p>Email: <%= @user.email if @user.email %></p>
+<div class="sidebar-background">
+  <div class="primary-sidebar-background"></div>
+</div>
+<div class="primary-sidebar">
+  <ul class="nav nav-collapse collapse nav-collapse-primary">
+    <li>
+      <span class="glow"></span>
+      <%= link_to 'Fittings', user_fitting_index_path(current_user) %>
+    </li>
+  </ul>
+  <div class="hidden-tablet hidden-phone">
+    <div class="sparkline-box side">
+      <div class="sparkline-row">
+        <h4 class="gray"><span>Fits</span> 847</h4>
+        <div class="sparkline big" data-color="gray"><!--25,3,28,4,15,4,17,25,15,12,10,8--></div>
+      </div>
+      <hr class="divider">
+      <div class="sparkline-row">
+        <h4 class="dark-green"><span>Wealth</span> $43.330</h4>
+        <div class="sparkline big" data-color="darkGreen"><!--5,10,24,20,27,21,24,9,12,14,26,23--></div>
+      </div>
+      <hr class="divider">
+      <div class="sparkline-row">
+        <h4 class="blue"><span>Reviews</span> 223</h4>
+        <div class="sparkline big" data-color="blue"><!--15,12,11,14,6,24,17,4,20,29,9,11--></div>
+      </div>
+      <hr class="divider">
+    </div>
+  </div>
+</div>
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row-fluid">
+    </div>
+  </div>
+  <div class="container-fluid padded">
+  </div>
+</div>

@@ -1,0 +1,80 @@
+<div class="sidebar-background">
+  <div class="primary-sidebar-background"></div>
+</div>
+<div class="primary-sidebar">
+  <ul class="nav nav-collapse collapse nav-collapse-primary">
+    <li class="active">
+      <span class="glow"></span>
+      <%= link_to 'Fittings', user_fitting_index_path(current_user) %>
+    </li>
+  </ul>
+  <div class="hidden-tablet hidden-phone">
+    <div class="sparkline-box side">
+      <div class="sparkline-row">
+        <h4 class="gray"><span>Fits</span> 847</h4>
+        <div class="sparkline big" data-color="gray"><!--25,3,28,4,15,4,17,25,15,12,10,8--></div>
+      </div>
+      <hr class="divider">
+      <div class="sparkline-row">
+        <h4 class="dark-green"><span>Wealth</span> $43.330</h4>
+        <div class="sparkline big" data-color="darkGreen"><!--5,10,24,20,27,21,24,9,12,14,26,23--></div>
+      </div>
+      <hr class="divider">
+      <div class="sparkline-row">
+        <h4 class="blue"><span>Reviews</span> 223</h4>
+        <div class="sparkline big" data-color="blue"><!--15,12,11,14,6,24,17,4,20,29,9,11--></div>
+      </div>
+      <hr class="divider">
+    </div>
+  </div>
+</div>
+<div class="main-content">
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="area-top clearfix">
+        <div class="pull-left header">
+          <h3 class="title">Fittings</h3>
+        </div>
+        <div class="pull-right">
+          <%= link_to 'New', new_user_fitting_path(current_user), :class => 'btn btn-large btn-primary' %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid padded">
+    <div class="row-fluid">
+      <div class="span12">
+        <ul class="chat-box timeline">
+          <li class="arrow-box-left gray">
+            <div class="avatar"><img class="avatar-small" src="../../images/avatars/avatar1.jpg"></div>
+            <div class="info">
+              <span class="name">
+                <span class="label label-green">COMMENT</span> <strong class="indent">Alex</strong> posted a comment on this task: <strong>Core Admin</strong>
+              </span>
+              <span class="time"><i class="icon-time"></i> 3 minutes ago</span>
+            </div>
+            <div class="content">
+              <blockquote>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              </blockquote>
+              <div>
+                <a href="#"><i class="icon-paper-clip"></i> <b>project_news.docx</b></a>
+              </div>
+            </div>
+          </li>
+
+          <li class="arrow-box-left gray">
+            <div class="avatar"><img class="avatar-small" src="../../images/avatars/avatar2.jpg"></div>
+            <div class="info">
+              <span class="name">
+                <span class="label label-blue">TASK</span> <strong class="indent">Alex</strong> completed this task: <strong class="strikethrough">Core Admin</strong>
+              </span>
+              <span class="time"><i class="icon-time"></i> 6 minutes ago</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

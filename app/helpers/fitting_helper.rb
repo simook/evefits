@@ -1,0 +1,2 @@
+module FittingHelper
+end

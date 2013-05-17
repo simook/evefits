@@ -9,27 +9,17 @@
     <%= csrf_meta_tags %>
     <%= yield(:head) %>
   </head>
-  <body class="<%= controller_name %> <%= action_name %>">
-    <div class="navbar navbar-fixed-top">
-      <nav class="navbar-inner">
-        <div class="container">
-          <%= render 'layouts/navigation' %>
-        </div>
-      </nav>
-    </div>
-    <div id="main" role="main">
-      <div class="container">
-        <div class="content">
-           <div class="row">
-            <div class="span12">
-              <%= render 'layouts/messages' %>
-              <%= yield %>
-            </div>
+  <body>
+    <div class="navbar navbar-top navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <%= link_to "EVE Fits", root_path, :class => 'brand' %>
+          <div class="nav-collapse nav-collapse-top collapse">
+            <%= render 'layouts/navigation' %>
           </div>
-          <footer>
-          </footer>
         </div>
-      </div> <!--! end of .container -->
-    </div> <!--! end of #main -->
+      </div>
+    </div>
+    <%= yield %>
   </body>
 </html>

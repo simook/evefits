@@ -1,26 +1,35 @@
-<%= link_to "Evefits", root_path, :class => 'brand' %>
-<ul class="nav">
-  <% if user_signed_in? %>
-    <li>
-    <%= link_to 'Logout', destroy_user_session_path, :method=>'delete' %>
-    </li>
-  <% else %>
-    <li>
-    <%= link_to 'Login', new_user_session_path %>
-    </li>
-  <% end %>
-  <% if user_signed_in? %>
-    <li>
-    <%= link_to 'Edit account', edit_user_registration_path %>
-    </li>
-    <% if current_user.has_role? :admin %>
-      <li>
-      <%= link_to 'Admin', users_path %>
+<% if user_signed_in? %>
+<ul class="nav full pull-right">
+  <li class="dropdown user-avatar">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+      <span>
+        <img class="menu-avatar" src="../../images/avatars/avatar1.jpg" /> <span><%= current_user.name %> <i class="icon-caret-down"></i></span>
+        <span class="badge badge-important">5</span>
+      </span>
+    </a>
+    <ul class="dropdown-menu">
+      <li class="with-image">
+        <div class="avatar">
+          <img src="../../images/avatars/avatar1.jpg" />
+        </div>
+        <span><%= current_user.name %></span>
       </li>
-    <% end %>
-  <% else %>
-    <li>
-    <%= link_to 'Sign up', new_user_registration_path %>
-    </li>
-  <% end %>
+      <li class="divider"></li>
+      <li><%= link_to 'Account', edit_user_registration_path %></li>
+      <li><a href="#"><i class="icon-envelope"></i> <span>Messages</span> <span class="label label-dark-red pull-right">5</span></a></li>
+      <% if current_user.has_role? :admin %>
+      <li><%= link_to 'Admin', users_path %></li>
+      <% end %>
+      <li><%= link_to 'Logout', destroy_user_session_path, :method=>'delete' %></li>
+    </ul>
+  </li>
 </ul>
+<ul class="nav pull-right">
+  <li><%= link_to 'Home', user_path(current_user) %></li>
+</ul>
+<% else %>
+<ul class="nav pull-right">
+  <li><%= link_to 'Sign Up', new_user_registration_path %></li>
+  <li><%= link_to 'Login', new_user_session_path %></li>
+</ul>
+<% end %>

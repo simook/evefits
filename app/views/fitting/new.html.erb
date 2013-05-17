@@ -1,0 +1,5 @@
+<%= simple_form_for @fitting, :url => url_for(:action => 'create', :controller => 'fitting'), :method => 'post' do |f| %>
+  <%= f.input :name, label: 'Name of your fitting' %>
+  <%= f.association :user %>
+  <%= f.button :submit %>
+<% end %>

@@ -1,0 +1,61 @@
+@import "compass/css3";
+.sparkline-box {
+  margin: 0px;
+  padding: 0px;
+  margin-top: 10px;
+  &.side {
+    .sparkline-row {
+      padding: 0;
+      float: none;
+      border: none;
+    }
+    h4 {
+      margin-right: 20px;
+      min-width: 70px;
+      text-shadow: none;
+    }
+  }
+  .sparkline-row {
+    text-align: center;
+    padding: 0;
+    padding-right: 15px;
+    float: left;
+    border-right: 1px dotted #aaa;
+    border-left: 1px dotted #fff;
+    &:first-child {
+      border-left: none;
+    }
+    &:last-child {
+      border-right: none;
+    }
+  }
+  h4 {
+    display: inline-block;
+    text-align: center;
+    margin: 0px;
+    text-shadow: 0 1px rgba(255,255,255,0.5);
+    min-width: 70px;
+    span {
+     color: #717e88;
+       font-size: 12px;
+       display: block;
+       text-align: center;
+       font-weight: 400;
+    }
+    &.gray {
+      color: #6b787f;
+    }
+    &.dark-green {
+      color: #779148;
+    }
+    &.blue {
+      color: #6e97aa;
+    }
+    &.green {
+     color: #8fae53;
+    }
+    &.red {
+      color: #c75d5d;
+    }
+  }
+}

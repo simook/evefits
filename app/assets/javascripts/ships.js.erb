@@ -1,0 +1,53 @@
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  ships: {}
+});
+
+evefits.ships = function(){
+  var _viewModel = function(){
+    var self = this;
+    self.groups = ko.observableArray();
+    self.ships = ko.observableArray();
+
+    $.ajax({
+      url: '<%= asset_path("ships.json") %>',
+      dataType: 'jsonp',
+      jsonpCallback: 'ships',
+      crossDomain: true,
+      success: function(data) {
+        for (var i = data.length - 1; i >= 0; i--) {
+          var ship = data[i];
+        self.ships.push(new _Ship(ship));
+        }
+      }
+    });
+  };
+
+  var _Group = function(){};
+
+  var _Ship = function(args){
+    var self = this;
+    self.id = ko.observable(args.typeID);
+    self.group = ko.observable(args.groupName);
+    self.name = ko.observable(args.typeName);
+    self.description = ko.observable(args.description);
+    self.mass = ko.observable(args.mass);
+    self.volume = ko.observable(args.volume);
+    self.capacity = ko.observable(args.capacity);
+    self.race = ko.observable(args.raceName);
+    self.basePrice = ko.observable(args.basePrice);
+  };
+
+  var _ships = new _viewModel();
+
+  var _init = function(){
+    ko.applyBindings(_ships);
+  };
+
+  return {init:_init}
+}();
