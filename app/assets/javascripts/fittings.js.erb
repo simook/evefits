@@ -142,7 +142,13 @@ evefits.fittings.show = function(){
       self.selectedMarketGroup(false);
     };
     self.addModule = function(element){
-
+      ko.utils.arrayFirst(self.ship().slots(), function(slot){
+        if(element.slot().toLowerCase() === slot.name().toLowerCase()){
+          if(slot.modules().length < slot.max()){
+            slot.addModule(element);
+          }
+        }
+      });
     };
   };
 
@@ -181,18 +187,21 @@ evefits.fittings.show = function(){
     self.name = ko.observable(args.attributename);
     self.max = ko.observable(args.value);
     self.slots = ko.observableArray();
-    self.empty = ko.observableArray();
-
+    self.modules = ko.observableArray();
     for (var i = 0; i < self.max(); i++) {
-      self.slots.push(new _Slot({name:self.name()}));
+      self.slots.push(new _Slot({slot:self.name()}));
     }
+    self.addModule = function(module){
+      self.modules.push(module);
+    };
   };
 
   var _Slot = function(args){
     var self = this;
     self.type = ko.observable();
+    self.slot = ko.observable(args.slot);
     self.icon = ko.observable();
-    self.name = ko.observable(args.name);
+    self.name = ko.observable();
     self.powerGrid = ko.observable();
     self.cpu = ko.observable();
     self.capacitor = ko.observable();
@@ -200,7 +209,7 @@ evefits.fittings.show = function(){
     self.tracking = ko.observable();
     self.price = ko.observable();
     self.charge = ko.observable();
-    switch (self.name().toLowerCase()) {
+    switch (self.slot().toLowerCase()) {
       case "lowslots":
         self.name('Low Slot');
         self.icon(window.location.origin+'/assets/items/8_64_9.png');
@@ -223,6 +232,23 @@ evefits.fittings.show = function(){
   var _Module = function(args){
     var self = this;
     self.name = ko.observable(args.typeName);
+    self.id = ko.observable(args.typeID);
+    self.slot = ko.observable();
+
+    switch (args.slot.toLowerCase()) {
+      case "lopower":
+        self.slot('lowslots');
+        break;
+      case "medpower":
+        self.slot('medslot');
+        break;
+      case "hipower":
+        self.slot('hislots');
+        break;
+      case "rigslot":
+        self.slot('rigslots');
+        break;
+    }
   };
 
   var _Group = function(args){

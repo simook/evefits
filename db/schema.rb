@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130518124245) do
+ActiveRecord::Schema.define(:version => 20130518210140) do
 
   create_table "chrRaces", :primary_key => "raceID", :force => true do |t|
     t.string  "raceName",         :limit => 100
@@ -33,11 +33,46 @@ ActiveRecord::Schema.define(:version => 20130518124245) do
     t.integer "categoryID"
   end
 
+  create_table "dgmEffects", :primary_key => "effectID", :force => true do |t|
+    t.string  "effectName",                     :limit => 400
+    t.integer "effectCategory",                 :limit => 2
+    t.integer "preExpression"
+    t.integer "postExpression"
+    t.string  "description",                    :limit => 1000
+    t.string  "guid",                           :limit => 60
+    t.integer "iconID"
+    t.integer "isOffensive"
+    t.integer "isAssistance"
+    t.integer "durationAttributeID",            :limit => 2
+    t.integer "trackingSpeedAttributeID",       :limit => 2
+    t.integer "dischargeAttributeID",           :limit => 2
+    t.integer "rangeAttributeID",               :limit => 2
+    t.integer "falloffAttributeID",             :limit => 2
+    t.integer "disallowAutoRepeat"
+    t.integer "published"
+    t.string  "displayName",                    :limit => 100
+    t.integer "isWarpSafe"
+    t.integer "rangeChance"
+    t.integer "electronicChance"
+    t.integer "propulsionChance"
+    t.integer "distribution"
+    t.string  "sfxName",                        :limit => 20
+    t.integer "npcUsageChanceAttributeID",      :limit => 2
+    t.integer "npcActivationChanceAttributeID", :limit => 2
+    t.integer "fittingUsageChanceAttributeID",  :limit => 2
+  end
+
   create_table "dgmTypeAttributes", :id => false, :force => true do |t|
     t.integer "typeID",                   :null => false
     t.integer "attributeID", :limit => 2, :null => false
     t.integer "valueInt"
     t.float   "valueFloat"
+  end
+
+  create_table "dgmTypeEffects", :id => false, :force => true do |t|
+    t.integer "typeID",                 :null => false
+    t.integer "effectID",  :limit => 2, :null => false
+    t.integer "isDefault"
   end
 
   create_table "fittings", :force => true do |t|
