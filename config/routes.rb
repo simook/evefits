@@ -2,9 +2,15 @@ Evefits::Application.routes.draw do
   authenticated :user do
     root :to => 'home#index'
   end
-  root :to => "home#index"
   devise_for :users
+
   resources :users do
     resources :fitting
   end
+
+  namespace :api do
+    resources :ships
+  end
+
+  root :to => "home#index"
 end

@@ -1,40 +1,13 @@
-<div class="sidebar-background">
-  <div class="primary-sidebar-background"></div>
-</div>
-<div class="primary-sidebar">
-  <ul class="nav nav-collapse collapse nav-collapse-primary">
-    <li class="active">
-      <span class="glow"></span>
-      <a href="#"><span>Fittings</span></a>
-    </li>
-  </ul>
-  <div class="hidden-tablet hidden-phone">
-    <div class="sparkline-box side">
-      <div class="sparkline-row">
-        <h4 class="gray"><span>Fits</span> 847</h4>
-        <div class="sparkline big" data-color="gray"><!--25,3,28,4,15,4,17,25,15,12,10,8--></div>
-      </div>
-      <hr class="divider">
-      <div class="sparkline-row">
-        <h4 class="dark-green"><span>Wealth</span> $43.330</h4>
-        <div class="sparkline big" data-color="darkGreen"><!--5,10,24,20,27,21,24,9,12,14,26,23--></div>
-      </div>
-      <hr class="divider">
-      <div class="sparkline-row">
-        <h4 class="blue"><span>Reviews</span> 223</h4>
-        <div class="sparkline big" data-color="blue"><!--15,12,11,14,6,24,17,4,20,29,9,11--></div>
-      </div>
-      <hr class="divider">
-    </div>
-  </div>
-</div>
+<%= render 'sidebar' %>
 <div class="main-content">
   <div class="container-fluid">
     <div class="row-fluid">
       <div class="area-top clearfix">
         <div class="pull-left header">
-          <h3 class="title">Fitting Name</h3>
-          <h5>Ship name</h5>
+          <h3 class="title" data-bind="text:name"></h3>
+          <!-- ko with:ship -->
+          <h5 data-bind="text:name"></h5>
+          <!-- /ko -->
         </div>
         <ul class="inline pull-right sparkline-box">
           <li class="sparkline-row">
@@ -62,34 +35,11 @@
             </div>
             <div id="collapseOne" class="accordion-body collapse" style="height: 0px;">
               <div class="accordion-inner">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+
               </div>
             </div>
           </div>
-          <div class="accordion-group">
-            <div class="accordion-heading">
-              <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
-                Collapsible Group Item #2
-              </a>
-            </div>
-            <div id="collapseTwo" class="accordion-body in collapse" style="height: auto;">
-              <div class="accordion-inner">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-              </div>
-            </div>
-          </div>
-          <div class="accordion-group">
-            <div class="accordion-heading">
-              <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree">
-                Collapsible Group Item #3
-              </a>
-            </div>
-            <div id="collapseThree" class="accordion-body collapse">
-              <div class="accordion-inner">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-              </div>
-            </div>
-          </div>
+
         </div>
         <div class="box">
           <div class="box-header">
@@ -204,3 +154,6 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  evefits.fittings.show.init();
+</script>

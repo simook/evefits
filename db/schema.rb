@@ -11,7 +11,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130517215831) do
+ActiveRecord::Schema.define(:version => 20130517234526) do
+
+  create_table "chrRaces", :primary_key => "raceID", :force => true do |t|
+    t.string  "raceName",         :limit => 100
+    t.string  "description",      :limit => 1000
+    t.integer "iconID"
+    t.string  "shortDescription", :limit => 500
+  end
 
   create_table "fittings", :force => true do |t|
     t.string   "name"
@@ -22,6 +29,47 @@ ActiveRecord::Schema.define(:version => 20130517215831) do
   end
 
   add_index "fittings", ["user_id"], :name => "index_fittings_on_user_id"
+
+  create_table "invMarketGroups", :primary_key => "marketGroupID", :force => true do |t|
+    t.integer "parentGroupID"
+    t.string  "marketGroupName", :limit => 100
+    t.string  "description",     :limit => 3000
+    t.integer "iconID"
+    t.integer "hasTypes"
+  end
+
+  create_table "invgroups", :primary_key => "groupID", :force => true do |t|
+    t.integer "categoryID"
+    t.string  "groupName",            :limit => 100
+    t.string  "description",          :limit => 3000
+    t.integer "iconID"
+    t.integer "useBasePrice"
+    t.integer "allowManufacture"
+    t.integer "allowRecycler"
+    t.integer "anchored"
+    t.integer "anchorable"
+    t.integer "fittableNonSingleton"
+    t.integer "published"
+  end
+
+  add_index "invgroups", ["categoryID"], :name => "invGroups_IX_category"
+
+  create_table "invtypes", :primary_key => "typeID", :force => true do |t|
+    t.integer "groupID"
+    t.string  "typeName",            :limit => 100
+    t.string  "description",         :limit => 3000
+    t.float   "mass"
+    t.float   "volume"
+    t.float   "capacity"
+    t.integer "portionSize"
+    t.integer "raceID"
+    t.decimal "basePrice",                           :precision => 19, :scale => 4
+    t.integer "published"
+    t.integer "marketGroupID"
+    t.float   "chanceOfDuplicating"
+  end
+
+  add_index "invtypes", ["groupID"], :name => "invTypes_IX_Group"
 
   create_table "roles", :force => true do |t|
     t.string   "name"

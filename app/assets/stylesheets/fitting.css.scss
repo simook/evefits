@@ -1,3 +1,18 @@
-// Place all the styles related to the fitting controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+@import "compass/css3";
+
+.ship {
+  padding: 10px;
+  border-bottom: 1px solid #d7d7d7;
+  &:hover {
+    cursor: pointer;
+    background: rgba(104, 166, 206, .1);
+    color: #68A6CE;
+  }
+  &.active {
+    background: #68A6CE;
+    color: #fff;
+  }
+  .row-fluid [class*="span"] {
+    min-height: 20px;
+  }
+}

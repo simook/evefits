@@ -4,7 +4,6 @@ class CreateFittings < ActiveRecord::Migration
       t.string :name
       t.references :user
       t.references :ship
-
       t.timestamps
     end
     add_index :fittings, :user_id

@@ -1,3 +1,10 @@
 class FittingSerializer < ActiveModel::Serializer
-  attributes :id
+  self.root = false
+  attributes :id, :name,:ship_id
+
+  has_one :ship
+
+  def ship
+    InvTypes.find(ship_id)
+  end
 end
