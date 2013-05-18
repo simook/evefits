@@ -23,6 +23,19 @@ class Api::ShipsController < ApplicationController
   end
 
   def show
-    @ship = InvTypes.find_by_sql("");
+    @ship = InvTypes.find_by_sql("SELECT
+        attribtypes.attributename,
+        coalesce(attrib.valueFloat, attrib.valueInt) as value
+    FROM dgmTypeAttributes AS attrib
+        INNER JOIN invTypes AS type
+          ON attrib.typeID = type.typeID
+        INNER JOIN dgmAttributeTypes AS attribtypes
+          ON attrib.attributeID = attribtypes.attributeID
+    WHERE attribtypes.attributename IN ('lowSlots', 'medSlots', 'hiSlots', 'rigSlots',
+        'maxSubSystems', 'lowSlotModifier','medSlotModifier','hiSlotModifier')
+    AND type.typeID = #{params[:id]};");
+    respond_to do |format|
+      format.json { render :json => @ship, :callback => params[:callback], :root => false }
+    end
   end
 end

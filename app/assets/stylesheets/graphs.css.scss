@@ -59,3 +59,64 @@
     }
   }
 }
+.progress {
+  @include border-radius(8px);
+  background: #eee;
+  @include box-shadow(0 1px 0 white,0 0 0 1px rgba(0,0,0,0.1) inset,0 1px 4px rgba(0,0,0,0.2) inset);
+  position: relative;
+  .bar {
+    @include border-radius(8px);
+  }
+  .progress-label {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    margin-top: 3px;
+    text-shadow: 0 1px rgba(255,255,255,.5);
+  }
+  &.progress-green {
+    .bar {
+      @include background(linear-gradient(to bottom,#b2cb49,#97af32));
+      border: 1px solid #869b2c;
+    }
+    .progress-label {
+      color: darken(#869b2c, 10);
+    }
+  }
+  &.progress-eve-red{
+    .bar {
+      @include background(linear-gradient(to bottom,#eb4d2c, #ca2013));
+      border: 1px solid #af2818;
+    }
+    .progress-label {
+      color: darken(#af2818, 10);
+    }
+  }
+  &.progress-eve-blue{
+    .bar {
+      @include background(linear-gradient(to bottom,#a9ded8, #348ba1));
+      border: 1px solid #257397;
+    }
+    .progress-label {
+      color: darken(#257397, 10);
+    }
+  }
+  &.progress-eve-grey{
+    .bar {
+      @include background(linear-gradient(to bottom,#cad1d0, #5c6865));
+      border: 1px solid #545957;
+    }
+    .progress-label {
+      color: darken(#545957, 10);
+    }
+  }
+  &.progress-eve-yellow{
+    .bar {
+      @include background(linear-gradient(to bottom,#f3a85f, #a05630));
+      border: 1px solid #7c472c;
+    }
+    .progress-label {
+      color: darken(#7c472c, 10);
+    }
+  }
+}

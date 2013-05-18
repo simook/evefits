@@ -11,13 +11,33 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130517234526) do
+ActiveRecord::Schema.define(:version => 20130518124245) do
 
   create_table "chrRaces", :primary_key => "raceID", :force => true do |t|
     t.string  "raceName",         :limit => 100
     t.string  "description",      :limit => 1000
     t.integer "iconID"
     t.string  "shortDescription", :limit => 500
+  end
+
+  create_table "dgmAttributeTypes", :primary_key => "attributeID", :force => true do |t|
+    t.string  "attributeName", :limit => 100
+    t.string  "description",   :limit => 1000
+    t.integer "iconID"
+    t.float   "defaultValue"
+    t.integer "published"
+    t.string  "displayName",   :limit => 100
+    t.integer "unitID"
+    t.integer "stackable"
+    t.integer "highIsGood"
+    t.integer "categoryID"
+  end
+
+  create_table "dgmTypeAttributes", :id => false, :force => true do |t|
+    t.integer "typeID",                   :null => false
+    t.integer "attributeID", :limit => 2, :null => false
+    t.integer "valueInt"
+    t.float   "valueFloat"
   end
 
   create_table "fittings", :force => true do |t|
@@ -30,15 +50,7 @@ ActiveRecord::Schema.define(:version => 20130517234526) do
 
   add_index "fittings", ["user_id"], :name => "index_fittings_on_user_id"
 
-  create_table "invMarketGroups", :primary_key => "marketGroupID", :force => true do |t|
-    t.integer "parentGroupID"
-    t.string  "marketGroupName", :limit => 100
-    t.string  "description",     :limit => 3000
-    t.integer "iconID"
-    t.integer "hasTypes"
-  end
-
-  create_table "invgroups", :primary_key => "groupID", :force => true do |t|
+  create_table "invGroups", :primary_key => "groupID", :force => true do |t|
     t.integer "categoryID"
     t.string  "groupName",            :limit => 100
     t.string  "description",          :limit => 3000
@@ -54,7 +66,15 @@ ActiveRecord::Schema.define(:version => 20130517234526) do
 
   add_index "invgroups", ["categoryID"], :name => "invGroups_IX_category"
 
-  create_table "invtypes", :primary_key => "typeID", :force => true do |t|
+  create_table "invMarketGroups", :primary_key => "marketGroupID", :force => true do |t|
+    t.integer "parentGroupID"
+    t.string  "marketGroupName", :limit => 100
+    t.string  "description",     :limit => 3000
+    t.integer "iconID"
+    t.integer "hasTypes"
+  end
+
+  create_table "invTypes", :primary_key => "typeID", :force => true do |t|
     t.integer "groupID"
     t.string  "typeName",            :limit => 100
     t.string  "description",         :limit => 3000

@@ -132,6 +132,18 @@ evefits.fittings.show = function(){
     var self = this;
     self.name = ko.observable();
     self.ship = ko.observable();
+    self.modules = ko.observableArray();
+    self.marketGroups = ko.observableArray();
+    self.selectedMarketGroup = ko.observable();
+    self.selectMarketGroup = function(element){
+      self.selectedMarketGroup(element);
+    };
+    self.backMarketGroup = function(){
+      self.selectedMarketGroup(false);
+    };
+    self.addModule = function(element){
+
+    };
   };
 
   var _Ship = function(args){
@@ -145,16 +157,104 @@ evefits.fittings.show = function(){
     self.capacity = ko.observable(args.capacity);
     self.race = ko.observable(args.raceName);
     self.basePrice = ko.observable(args.basePrice);
+    self.slots = ko.observableArray();
     self.image = ko.computed(function(){
       return window.location.origin+'/assets/ships/'+self.id()+'.png';
     });
+    if(self.id()){
+      $.ajax({
+        url: '<%= url.api_ships_path %>/'+self.id(),
+        dataType: 'jsonp',
+        jsonpCallback: 'fitting',
+        crossDomain: true,
+        success: function(data) {
+          for (var i = 0; i < data.length; i++) {
+            self.slots.push(new _Slots(data[i]));
+          }
+        }
+      });
+    }
   };
 
-  var _show = new _viewModel();
+  var _Slots = function(args){
+    var self = this;
+    self.name = ko.observable(args.attributename);
+    self.max = ko.observable(args.value);
+    self.slots = ko.observableArray();
+    self.empty = ko.observableArray();
 
-  var _init = function(){
-    ko.applyBindings(_show);
+    for (var i = 0; i < self.max(); i++) {
+      self.slots.push(new _Slot({name:self.name()}));
+    }
+  };
 
+  var _Slot = function(args){
+    var self = this;
+    self.type = ko.observable();
+    self.icon = ko.observable();
+    self.name = ko.observable(args.name);
+    self.powerGrid = ko.observable();
+    self.cpu = ko.observable();
+    self.capacitor = ko.observable();
+    self.range = ko.observable();
+    self.tracking = ko.observable();
+    self.price = ko.observable();
+    self.charge = ko.observable();
+    switch (self.name().toLowerCase()) {
+      case "lowslots":
+        self.name('Low Slot');
+        self.icon(window.location.origin+'/assets/items/8_64_9.png');
+        break;
+      case "medslots":
+        self.name('Med Slot');
+        self.icon(window.location.origin+'/assets/items/8_64_10.png');
+        break;
+      case "hislots":
+        self.name('High Slot');
+        self.icon(window.location.origin+'/assets/items/8_64_11.png');
+        break;
+      case "rigslots":
+        self.name('Rig Slot');
+        self.icon();
+        break;
+    }
+  };
+
+  var _Module = function(args){
+    var self = this;
+    self.name = ko.observable(args.typeName);
+  };
+
+  var _Group = function(args){
+    var self = this;
+    self.name = ko.observable(args.marketGroupName);
+    self.icon = ko.observable(args.iconID);
+    self.id = ko.observable(args.marketGroupID);
+    self.marketGroups = ko.observableArray();
+    self.modules = ko.observableArray();
+    if(args.groups){
+      for (var i = 0; i < args.groups.length; i++) {
+        self.marketGroups.push(new _Group(args.groups[i]));
+      }
+    }
+    _show.selectedMarketGroup.subscribe(function(value){
+      if(value && self.modules().length === 0 && value === self){
+        $.ajax({
+          url: '<%= url.api_modules_path %>/'+self.id()+'/types',
+          dataType: 'jsonp',
+          jsonpCallback: 'types',
+          crossDomain: true,
+          success: function(data) {
+            for (var i = 0; i < data.length; i++) {
+              self.modules.push(new _Module(data[i]));
+            }
+          }
+        });
+      }
+    });
+  };
+
+  var _loadEnviromentData = function(){
     $.ajax({
       url: window.document.location,
       dataType: 'jsonp',
@@ -165,6 +265,24 @@ evefits.fittings.show = function(){
         _show.ship(new _Ship(data.ship));
       }
     });
+    $.ajax({
+      url: '<%= url.api_modules_path %>',
+      dataType: 'jsonp',
+      jsonpCallback: 'modules',
+      crossDomain: true,
+      success: function(data) {
+        for (var i = 0; i < data.length; i++) {
+          _show.marketGroups.push(new _Group(data[i]));
+        };
+      }
+    });
+  };
+
+  var _show = new _viewModel();
+
+  var _init = function(){
+    ko.applyBindings(_show);
+    _loadEnviromentData();
   };
 
   return {init:_init}

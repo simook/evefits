@@ -9,7 +9,12 @@ Evefits::Application.routes.draw do
   end
 
   namespace :api do
-    resources :ships
+    resources :ships, :only => [:index, :show]
+    resources :modules, :only => [:index, :show, :types] do
+      member do
+        get 'types'
+      end
+    end
   end
 
   root :to => "home#index"
