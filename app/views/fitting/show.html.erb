@@ -88,7 +88,8 @@
             <div class="progress" data-bind="progress:{min:cpuUsed(),max:cpu()}"></div>
           </div>
           <div class="span6">
-
+            <img src="<%= asset_path('items/56_64_5.png') %>" title="Drone bay" class="pull-left" width="20px" />
+            <div class="progress" data-bind="progress:{min:droneBayUsed(),max:droneBay()}"></div>
           </div>
         </div>
         <div class="row-fluid">
@@ -97,6 +98,8 @@
             <div class="progress" data-bind="progress:{min:powerGridUsed(),max:powerGrid()}"></div>
           </div>
           <div class="span6">
+            <img src="<%= asset_path('items/56_64_7.png') %>" title="Drone bandwidth" class="pull-left" width="20px" />
+            <div class="progress" data-bind="progress:{min:droneBandwidthUsed(),max:droneBandwidth()}"></div>
           </div>
         </div>
         <div class="box">
@@ -109,23 +112,26 @@
           </div>
           <div class="box-content padded">
             <div class="row-fluid">
-              <div class="span6">
+              <div class="span4">
                 <img src="<%= asset_path('items/13_64_7.png') %>" class="pull-left margin-right" width="20px" />
-                <span data-bind="text:weaponDps"></span> <small class="muted">dps</small>
+                <span data-bind="text:turretDps"></span> <small class="muted">dps</small>
               </div>
-              <div class="span6">
-                <img src="<%= asset_path('') %>" class="pull-left margin-right" width="20px" />
+              <div class="span4">
+                <img src="<%= asset_path('items/56_64_5.png') %>" class="pull-left margin-right" width="20px" />
                 <span data-bind="text:droneDps"></span> <small class="muted">dps</small>
               </div>
+              <div class="span4">
+                <img src="<%= asset_path('items/12_64_12.png') %>" class="pull-left margin-right" width="20px" />
+                <span data-bind="text:missleDps"></span> <small class="muted">dps</small>
+              </div>
             </div>
-
           </div>
         </div>
         <div class="box">
           <div class="box-header">
-            <div class="title">Defence</div>
+            <div class="title">Defense</div>
             <ul class="box-toolbar">
-              <li><span class="label"><span data-bind="text:ehp"></span> ehp</span></li>
+              <li><span class="label"><span data-bind="text:totalHp"></span> hp</span></li>
             </ul>
           </div>
           <div class="box-content padded">
@@ -155,28 +161,16 @@
               <div class="span10">
                 <div class="row-fluid">
                   <div class="span3">
-                    <div class="progress progress-eve-blue">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:shieldEM(), max:100, color:'progress-eve-blue'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-red">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:shieldThermal(), max:100, color:'progress-eve-red'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-grey">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:shieldKinetic(), max:100, color:'progress-eve-grey'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-yellow">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:shieldExsplosive(), max:100, color:'progress-eve-yellow'}"></div>
                   </div>
                 </div>
               </div>
@@ -188,28 +182,16 @@
               <div class="span10">
                 <div class="row-fluid">
                   <div class="span3">
-                    <div class="progress progress-eve-blue">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:armorEM(), max:100, color:'progress-eve-blue'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-red">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:armorThermal(), max:100, color:'progress-eve-red'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-grey">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:armorKinetic(), max:100, color:'progress-eve-grey'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-yellow">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:armorExsplosive(), max:100, color:'progress-eve-yellow'}"></div>
                   </div>
                 </div>
               </div>
@@ -221,28 +203,16 @@
               <div class="span10">
                 <div class="row-fluid">
                   <div class="span3">
-                    <div class="progress progress-eve-blue">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:hullEM(), max:100, color:'progress-eve-blue'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-red">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:hullThermal(), max:100, color:'progress-eve-red'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-grey">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:hullKinetic(), max:100, color:'progress-eve-grey'}"></div>
                   </div>
                   <div class="span3">
-                    <div class="progress progress-eve-yellow">
-                      <div class="progress-label">46%</div>
-                      <div class="bar" title="46%" data-percent="46" style="width: 46%;"></div>
-                    </div>
+                    <div class="progress" data-bind="progress:{min:hullExsplosive(), max:100, color:'progress-eve-yellow'}"></div>
                   </div>
                 </div>
               </div>

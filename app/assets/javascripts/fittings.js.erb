@@ -175,28 +175,40 @@ evefits.fittings.show = function(){
     self.powerGridUsed = ko.observable(0);
     self.cpu = ko.observable(0);
     self.cpuUsed = ko.observable(0);
+    self.droneBay = ko.observable(0);
+    self.droneBayUsed = ko.observable(0);
+    self.droneBandwidth = ko.observable(0);
+    self.droneBandwidthUsed = ko.observable(0);
 
     /* Offense attributes */
-    self.weaponDps = ko.observable(0);
+    self.turretDps = ko.observable(0);
+    self.missleDps = ko.observable(0);
     self.droneDps = ko.observable(0);
-    self.dps = ko.observable(0);
+    self.dps = ko.computed(function(){
+      return (self.turretDps() + self.missleDps() + self.droneDps());
+    });
     self.volley = ko.observable(0);
 
     /* Defence attributes */
-    self.hp = ko.observable(0);
-    self.ehp = ko.observable(0);
+    self.shieldHp = ko.observable(0);
     self.shieldEM = ko.observable(0);
     self.shieldThermal = ko.observable(0);
     self.shieldKinetic = ko.observable(0);
     self.shieldExsplosive = ko.observable(0);
+    self.armorHp = ko.observable(0);
     self.armorEM = ko.observable(0);
     self.armorThermal = ko.observable(0);
     self.armorKinetic = ko.observable(0);
     self.armorExsplosive = ko.observable(0);
+    self.hullHp = ko.observable(0);
     self.hullEM = ko.observable(0);
     self.hullThermal = ko.observable(0);
     self.hullKinetic = ko.observable(0);
     self.hullExsplosive = ko.observable(0);
+    self.ehp = ko.observable(0);
+    self.totalHp = ko.computed(function(){
+      return (self.shieldHp() + self.armorHp() + self.hullHp());
+    });
 
     /* Capacitor attributes */
     self.capacitor = ko.observable();
@@ -301,7 +313,7 @@ evefits.fittings.show = function(){
           self.slot('lowslots');
           break;
         case "medpower":
-          self.slot('medslot');
+          self.slot('medslots');
           break;
         case "hipower":
           self.slot('hislots');
@@ -445,9 +457,17 @@ evefits.fittings.show = function(){
           } else if(attribute.name.toLowerCase() === 'capacitorcapacity'){
             args.capacitor(attribute.value);
           } else if(attribute.name.toLowerCase() === 'hp'){
-            args.hp(attribute.value);
+            args.hullHp(attribute.value);
           } else if(attribute.name.toLowerCase() === 'rechargerate'){
             args.rechargeRate(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'dronecapacity'){
+            args.droneBay(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'dronebandwidth'){
+            args.droneBandwidth(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'shieldCapacity'){
+            args.shieldHp(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'armorhp'){
+            args.armorHp(attribute.value);
           }
         };
       }
@@ -488,10 +508,14 @@ evefits.fittings.show = function(){
       progressBar = $('<div />',{"class":"bar"}).attr({title:percent+'%'}).data({percent:percent}).css({width:percent});
       $(element).empty();
       $(element).append(progressLabel, progressBar);
-      if(percent > 100){
-        $(element).removeClass('progress-green').addClass('progress-red');
+      if(options && options.color){
+        $(element).addClass(options.color);
       } else {
-        $(element).removeClass('progress-red').addClass('progress-green');
+        if(percent > 100){
+          $(element).removeClass('progress-green').addClass('progress-red');
+        } else {
+          $(element).removeClass('progress-red').addClass('progress-green');
+        }
       }
     }
   };
