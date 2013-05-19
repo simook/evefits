@@ -1,7 +1,7 @@
-class ModuleSerializer < ActiveModel::Serializer
+class ModulesSerializer < ActiveModel::Serializer
   attributes :iconID, :marketGroupID, :marketGroupName, :parentGroupID
 
-  has_many :groups, :serializer => ModuleSerializer
+  has_many :groups, :serializer => ModulesSerializer
 
   def groups
     InvMarketGroups.where(:parentGroupID => marketGroupID)

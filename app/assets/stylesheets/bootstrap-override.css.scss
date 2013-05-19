@@ -78,3 +78,9 @@ hr, li {
 .padded {
   padding: 15px;
 }
+.input-prepend {
+  &.fixed-widths {
+    .add-on,.uneditable-input { width: 50%}
+    .uneditable-input {}
+  }
+}

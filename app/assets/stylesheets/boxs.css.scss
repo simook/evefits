@@ -87,6 +87,9 @@
       padding-right: 10px;
       color: #636363;
       font-size: 12px;
+      &:last-child{
+        margin-left: 0px;
+      }
     }
   }
 }
@@ -106,6 +109,14 @@
     margin-bottom: 15px;
     .avatar {
       left: -50px;
+    }
+  }
+}
+.box-content {
+  .input-prepend {
+    margin: 0 0 5px 0;
+    .add-on {
+      font-size: 12px;
     }
   }
 }
@@ -178,4 +189,7 @@
   a {
     text-decoration: none;
   }
+}
+.margin-right {
+  margin-right: 5px;
 }

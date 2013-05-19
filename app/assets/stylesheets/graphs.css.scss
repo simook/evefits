@@ -83,6 +83,15 @@
       color: darken(#869b2c, 10);
     }
   }
+  &.progress-red {
+    .bar {
+      @include background(linear-gradient(to bottom,#d47775,#c8514e));
+      border: 1px solid #c13f3c;
+    }
+    .progress-label {
+      color: darken(#c13f3c, 10);
+    }
+  }
   &.progress-eve-red{
     .bar {
       @include background(linear-gradient(to bottom,#eb4d2c, #ca2013));

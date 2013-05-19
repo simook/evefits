@@ -1,0 +1,79 @@
+## get required skills for ships and modules
+
+SELECT
+ Ships.typeName AS ShipName,
+ GROUPING.groupName AS ShipType,
+ Skills.typeName AS RequiredSkill,
+ COALESCE(
+  SkillLevel.valueInt,
+  SkillLevel.valueFloat
+ ) AS RequiredLevel
+FROM
+ dgmTypeAttributes AS SkillName
+
+INNER JOIN invTypes AS Ships
+ ON Ships.typeID = SkillName.typeID
+INNER JOIN invGroups AS GROUPING
+ ON GROUPING.groupID = Ships.groupID
+INNER JOIN invTypes AS Skills
+ ON (Skills.typeID = SkillName.valueInt OR Skills.typeID = SkillName.valueFloat)
+  AND SkillName.attributeID IN (182, 183, 184, 1285, 1289, 1290)
+INNER JOIN dgmTypeAttributes AS SkillLevel
+ ON SkillLevel.typeID = SkillName.typeID
+  AND SkillLevel.attributeID IN (277, 278, 279, 1286, 1287, 1288)
+WHERE
+GROUPING.categoryID = 6 AND
+Ships.published = 1 AND
+ ((SkillName.attributeID = 182 AND
+  SkillLevel.attributeID = 277) OR
+ (SkillName.attributeID = 183 AND
+  SkillLevel.attributeID = 278) OR
+ (SkillName.attributeID = 184 AND
+  SkillLevel.attributeID = 279) OR
+ (SkillName.attributeID = 1285 AND
+  SkillLevel.attributeID = 1286) OR
+ (SkillName.attributeID = 1289 AND
+  SkillLevel.attributeID = 1287) OR
+ (SkillName.attributeID = 1290 AND
+  SkillLevel.attributeID = 1288))
+
+## get all attributes for items
+SELECT
+  ISNULL(valueFloat, valueInt)
+FROM invTypes AS t1
+INNER JOIN dgmTypeAttributes AS t2 ON t1.typeID = t2.typeID
+WHERE t1.typeID = #{params[:id]} AND t1.published = 1
+
+## get attributes for items
+SELECT
+  IF (t2.valueFloat IS NULL, t2.valueInt, t2.valueFloat) AS grid,
+  IF (t3.valueFloat IS NULL, t3.valueInt, t3.valueFloat) AS cpu
+FROM invTypes AS t1
+INNER JOIN dgmTypeAttributes AS t2
+  ON t1.typeID = t2.typeID AND t2.attributeID = 30
+INNER JOIN dgmTypeAttributes AS t3
+  ON t1.typeID = t3.typeID AND t3.attributeID = 50
+
+## get attributes for items
+SELECT
+  invTypes.typeID,
+  invTypes.typeName,
+  ISNULL(R.valueFloat, R.valueInt) AS rateOfFire,
+  ISNULL(D.valueFloat, D.valueInt) AS damageMultiplier,
+  ISNULL(O.valueFloat, O.valueInt) AS optimalRange,
+  ISNULL(F.valueFloat, F.valueInt) AS falloffRange,
+  ISNULL(T.valueFloat, T.valueInt) AS trackingSpeed,
+  ISNULL(S.valueFloat, S.valueInt) AS signatureResolution
+  FROM [invTypes]
+  JOIN [dgmTypeAttributes] AS [R]
+  ON [R].[typeID] = [invTypes].[typeID] AND [R].[attributeID] = 51
+  JOIN [dgmTypeAttributes] AS [D]
+  ON [D].[typeID] = [invTypes].[typeID] AND [D].[attributeID] = 64
+  JOIN [dgmTypeAttributes] AS [O]
+  ON [O].[typeID] = [invTypes].[typeID] AND [O].[attributeID] = 54
+  JOIN [dgmTypeAttributes] AS [F]
+  ON [F].[typeID] = [invTypes].[typeID] AND [F].[attributeID] = 158
+  JOIN [dgmTypeAttributes] AS [T]
+  ON [T].[typeID] = [invTypes].[typeID] AND [T].[attributeID] = 160
+  JOIN [dgmTypeAttributes] AS [S]
+  ON [S].[typeID] = [invTypes].[typeID] AND [S].[attributeID] = 620

@@ -154,6 +154,12 @@ evefits.fittings.show = function(){
 
   var _Ship = function(args){
     var self = this;
+    /* UI stuff */
+    self.slots = ko.observableArray();
+    self.hasAttributes = ko.observable(false);
+    self.attributes = ko.observableArray();
+
+    /* Basic attributes */
     self.id = ko.observable(args.typeID);
     self.group = ko.observable(args.groupName);
     self.name = ko.observable(args.typeName);
@@ -163,10 +169,48 @@ evefits.fittings.show = function(){
     self.capacity = ko.observable(args.capacity);
     self.race = ko.observable(args.raceName);
     self.basePrice = ko.observable(args.basePrice);
-    self.slots = ko.observableArray();
+
+    /*  */
+    self.powerGrid = ko.observable(0);
+    self.powerGridUsed = ko.observable(0);
+    self.cpu = ko.observable(0);
+    self.cpuUsed = ko.observable(0);
+
+    /* Offense attributes */
+    self.weaponDps = ko.observable(0);
+    self.droneDps = ko.observable(0);
+    self.dps = ko.observable(0);
+    self.volley = ko.observable(0);
+
+    /* Defence attributes */
+    self.hp = ko.observable(0);
+    self.ehp = ko.observable(0);
+    self.shieldEM = ko.observable(0);
+    self.shieldThermal = ko.observable(0);
+    self.shieldKinetic = ko.observable(0);
+    self.shieldExsplosive = ko.observable(0);
+    self.armorEM = ko.observable(0);
+    self.armorThermal = ko.observable(0);
+    self.armorKinetic = ko.observable(0);
+    self.armorExsplosive = ko.observable(0);
+    self.hullEM = ko.observable(0);
+    self.hullThermal = ko.observable(0);
+    self.hullKinetic = ko.observable(0);
+    self.hullExsplosive = ko.observable(0);
+
+    /* Capacitor attributes */
+    self.capacitor = ko.observable();
+    self.rechargeRate = ko.observable();
+
     self.image = ko.computed(function(){
       return window.location.origin+'/assets/ships/'+self.id()+'.png';
     });
+    self.getAttributes = function(){
+      if(self.attributes().length === 0){
+        $.when(_getShipAttributes(self)).done(self.hasAttributes(true));
+      }
+    };
+
     if(self.id()){
       $.ajax({
         url: '<%= url.api_ships_path %>/'+self.id(),
@@ -175,7 +219,7 @@ evefits.fittings.show = function(){
         crossDomain: true,
         success: function(data) {
           for (var i = 0; i < data.length; i++) {
-            self.slots.push(new _Slots(data[i]));
+            self.slots.unshift(new _Slots(data[i]));
           }
         }
       });
@@ -184,70 +228,109 @@ evefits.fittings.show = function(){
 
   var _Slots = function(args){
     var self = this;
+    /* UI Stuff */
     self.name = ko.observable(args.attributename);
     self.max = ko.observable(args.value);
     self.slots = ko.observableArray();
     self.modules = ko.observableArray();
+
+    /* Computed module attributes */
+    self.powerGrid =  ko.observable(0);
+    self.cpu = ko.observable(0);
+    self.capacitor = ko.observable(0);
+
     for (var i = 0; i < self.max(); i++) {
-      self.slots.push(new _Slot({slot:self.name()}));
+      self.slots.push(new _Module({
+        slot: self.name(),
+        slotType: 'empty'
+      }));
     }
     self.addModule = function(module){
-      self.modules.push(module);
+      var freeSlot = ko.utils.arrayFirst(self.slots(), function(slot){
+        return (slot.slotType() === 'empty');
+      });
+      if(freeSlot){
+        module.getAttributes();
+        self.slots.replace(freeSlot, module);
+        self.modules.push(module);
+      }
     };
-  };
-
-  var _Slot = function(args){
-    var self = this;
-    self.type = ko.observable();
-    self.slot = ko.observable(args.slot);
-    self.icon = ko.observable();
-    self.name = ko.observable();
-    self.powerGrid = ko.observable();
-    self.cpu = ko.observable();
-    self.capacitor = ko.observable();
-    self.range = ko.observable();
-    self.tracking = ko.observable();
-    self.price = ko.observable();
-    self.charge = ko.observable();
-    switch (self.slot().toLowerCase()) {
-      case "lowslots":
-        self.name('Low Slot');
-        self.icon(window.location.origin+'/assets/items/8_64_9.png');
-        break;
-      case "medslots":
-        self.name('Med Slot');
-        self.icon(window.location.origin+'/assets/items/8_64_10.png');
-        break;
-      case "hislots":
-        self.name('High Slot');
-        self.icon(window.location.origin+'/assets/items/8_64_11.png');
-        break;
-      case "rigslots":
-        self.name('Rig Slot');
-        self.icon();
-        break;
-    }
+    self.removeModule = function(module){
+      //todo
+    };
   };
 
   var _Module = function(args){
     var self = this;
-    self.name = ko.observable(args.typeName);
-    self.id = ko.observable(args.typeID);
-    self.slot = ko.observable();
+    /* UI stuff */
+    self.slot = ko.observable(args.hasOwnProperty('slot') ? args.slot : undefined);
+    self.slotType = ko.observable(args.hasOwnProperty('slotType') ? args.slotType : undefined);
+    self.icon = ko.observable();
+    self.hasAttributes = ko.observable(false);
 
-    switch (args.slot.toLowerCase()) {
-      case "lopower":
-        self.slot('lowslots');
-        break;
-      case "medpower":
-        self.slot('medslot');
-        break;
-      case "hipower":
-        self.slot('hislots');
-        break;
-      case "rigslot":
-        self.slot('rigslots');
-        break;
+    /* Basic attributes */
+    self.id = ko.observable(args.hasOwnProperty('id') ? args.id : undefined);
+    self.slot = ko.observable(args.hasOwnProperty('slot') ? args.slot : undefined);
+    self.name = ko.observable(args.hasOwnProperty('typeName') ? args.typeName : undefined);
+    self.mass = ko.observable(args.hasOwnProperty('mass') ? args.mass : undefined);
+    self.volume = ko.observable(args.hasOwnProperty('volume') ? args.volume : undefined);
+    self.capacity = ko.observable(args.hasOwnProperty('capacity') ? args.capacity : undefined);
+    self.description = ko.observable(args.hasOwnProperty('description') ? args.description : undefined);
+    self.price = ko.observable(args.hasOwnProperty('basePrice') ? args.basePrice : undefined);
+
+    /* Extended attributes */
+    self.powerGrid = ko.observable();
+    self.cpu = ko.observable();
+    self.capacitor = ko.observable();
+    self.maxRange = ko.observable();
+    self.falloff = ko.observable();
+    self.tracking = ko.observable();
+    self.charge = ko.observable();
+    self.attributes = ko.observableArray();
+
+    self.getAttributes = function(){
+      if(!self.hasAttributes()){
+        $.when(_getModuleAttributes(self)).done(self.hasAttributes(true));
+      }
+    };
+
+    /* Clean up slot types for modules */
+    if(self.slotType() === 'module' && self.slot()){
+      switch (self.slot().toLowerCase()) {
+        case "lopower":
+          self.slot('lowslots');
+          break;
+        case "medpower":
+          self.slot('medslot');
+          break;
+        case "hipower":
+          self.slot('hislots');
+          break;
+        case "rigslot":
+          self.slot('rigslots');
+          break;
+      }
+    }
+    /* Clean up slot types for empty modules placeholders */
+    if(self.slotType() === 'empty' && self.slot()){
+      switch (self.slot().toLowerCase()) {
+        case "lowslots":
+          self.name('Low Slot');
+          self.icon(window.location.origin+'/assets/items/8_64_9.png');
+          break;
+        case "medslots":
+          self.name('Med Slot');
+          self.icon(window.location.origin+'/assets/items/8_64_10.png');
+          break;
+        case "hislots":
+          self.name('High Slot');
+          self.icon(window.location.origin+'/assets/items/8_64_11.png');
+          break;
+        case "rigslots":
+          self.name('Rig Slot');
+          self.icon();
+          break;
+      }
     }
   };
 
@@ -272,10 +355,101 @@ evefits.fittings.show = function(){
           crossDomain: true,
           success: function(data) {
             for (var i = 0; i < data.length; i++) {
-              self.modules.push(new _Module(data[i]));
+              var module = data[i];
+              module.slotType = 'module';
+              self.modules.push(new _Module(module));
             }
           }
         });
+      }
+    });
+  };
+
+  /**
+  * A attribute.
+  * @class _Attribute
+  * @constructor
+  * @params {object} args The arguments for this attribute.
+  */
+  var _Attribute = function(args){
+    var self = this;
+    self.name = ko.observable(args.name);
+    self.value = ko.observable(args.value);
+    self.id = ko.observable(args.attributes.attributeID);
+    self.category = ko.observable(args.attributes.categoryID);
+    self.defaultValue = ko.observable(args.attributes.defaultValue);
+    self.description = ko.observable(args.attributes.description);
+    self.displayName = ko.observable(args.attributes.displayName);
+    self.highIsGood = ko.observable(args.attributes.highIsGood);
+    self.icon = ko.observable(args.attributes.iconID);
+    self.stackable = ko.observable(args.attributes.stackable);
+  };
+
+  /**
+  * Gets all the extended attributes for modules.
+  * @method _getModuleAttributes
+  * @async
+  * @params {object} args The module constructor.
+  */
+  var _getModuleAttributes = function(args){
+    var dfr = $.Deferred();
+    $.ajax({
+      url: '<%= url.api_modules_path %>/'+args.id(),
+      dataType: 'jsonp',
+      jsonpCallback: 'attributes',
+      crossDomain: true,
+      success: function(data) {
+        for (var i = 0; i < data.length; i++) {
+          var attribute = data[i];
+          args.attributes.push(new _Attribute(attribute));
+          if(attribute.name.toLowerCase() === 'cpu'){
+            args.cpu(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'power'){
+            args.powerGrid(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'capacitorneed'){
+            args.capacitor(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'maxrange'){
+            args.maxRange(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'falloff'){
+            args.falloff(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'trackingspeed'){
+            args.tracking(attribute.value);
+          }
+        };
+        dfr.resolve();
+      }
+    });
+    return dfr.promise();
+  };
+
+  /**
+  * Gets all the extended attributes for ships.
+  * @method _getShipAttributes
+  * @async
+  * @params {object} args The ship constructor.
+  */
+  var _getShipAttributes = function(args){
+    return $.ajax({
+      url: '<%= url.api_modules_path %>/'+args.id(),
+      dataType: 'jsonp',
+      jsonpCallback: 'attributes',
+      crossDomain: true,
+      success: function(data) {
+        for (var i = 0; i < data.length; i++) {
+          var attribute = data[i];
+          args.attributes.push(new _Attribute(attribute));
+          if(attribute.name.toLowerCase() === 'cpuoutput'){
+            args.cpu(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'poweroutput'){
+            args.powerGrid(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'capacitorcapacity'){
+            args.capacitor(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'hp'){
+            args.hp(attribute.value);
+          } else if(attribute.name.toLowerCase() === 'rechargerate'){
+            args.rechargeRate(attribute.value);
+          }
+        };
       }
     });
   };
@@ -287,8 +461,10 @@ evefits.fittings.show = function(){
       jsonpCallback: 'fitting',
       crossDomain: true,
       success: function(data) {
+        var ship = new _Ship(data.ship);
+        ship.getAttributes();
         _show.name(data.name)
-        _show.ship(new _Ship(data.ship));
+        _show.ship(ship);
       }
     });
     $.ajax({
@@ -304,6 +480,22 @@ evefits.fittings.show = function(){
     });
   };
 
+  ko.bindingHandlers.progress = {
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var options = valueAccessor(),
+      percent = (options.min / options.max * 100),
+      progressLabel = $('<div />',{"class":"progress-label"}).text(Math.round(percent)+'%'),
+      progressBar = $('<div />',{"class":"bar"}).attr({title:percent+'%'}).data({percent:percent}).css({width:percent});
+      $(element).empty();
+      $(element).append(progressLabel, progressBar);
+      if(percent > 100){
+        $(element).removeClass('progress-green').addClass('progress-red');
+      } else {
+        $(element).removeClass('progress-red').addClass('progress-green');
+      }
+    }
+  };
+
   var _show = new _viewModel();
 
   var _init = function(){
@@ -311,5 +503,6 @@ evefits.fittings.show = function(){
     _loadEnviromentData();
   };
 
-  return {init:_init}
+  return {init:_init,
+          viewModel:_show}
 }();

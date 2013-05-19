@@ -1,4 +1,4 @@
-class TypeSerializer < ActiveModel::Serializer
+class TypesSerializer < ActiveModel::Serializer
   attributes :id, :typeName, :description, :mass, :volume, :capacity, :portionSize, :raceID, :basePrice, :slot
 
   def slot
