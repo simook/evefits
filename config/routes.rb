@@ -5,7 +5,11 @@ Evefits::Application.routes.draw do
   devise_for :users
 
   resources :users do
-    resources :fitting
+    resources :fitting do
+      member do
+        post 'module'
+      end
+    end
   end
 
   namespace :api do

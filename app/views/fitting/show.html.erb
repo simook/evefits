@@ -230,7 +230,7 @@
             <div class="row-fluid">
               <div class="span6">
                 <img src="<%= asset_path('items/1_64_4.png') %>" class="pull-left margin-right" width="20px" />
-                9.99k <small class="muted">GJ</small>
+                <span data-bind="text:capacitor"></span> <small class="muted">GJ</small>
               </div>
               <div class="span6">
                 <img src="<%= asset_path('items/1_64_1.png') %>" class="pull-left margin-right" width="20px" />
@@ -370,5 +370,7 @@
 </tr>
 </script>
 <script type="text/javascript">
-  evefits.fittings.show.init();
+  $(function() {
+    evefits.fittings.show.init();
+  });
 </script>

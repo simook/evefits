@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130518210140) do
+ActiveRecord::Schema.define(:version => 20130520003209) do
 
   create_table "chrRaces", :primary_key => "raceID", :force => true do |t|
     t.string  "raceName",         :limit => 100
@@ -136,6 +136,16 @@ ActiveRecord::Schema.define(:version => 20130518210140) do
 
   add_index "roles", ["name", "resource_type", "resource_id"], :name => "index_roles_on_name_and_resource_type_and_resource_id"
   add_index "roles", ["name"], :name => "index_roles_on_name"
+
+  create_table "ship_modules", :force => true do |t|
+    t.integer  "fitting_id"
+    t.integer  "invTypes_id"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "ship_modules", ["fitting_id"], :name => "index_ship_modules_on_fitting_id"
+  add_index "ship_modules", ["invTypes_id"], :name => "index_ship_modules_on_invTypes_id"
 
   create_table "users", :force => true do |t|
     t.string   "email",                  :default => "", :null => false

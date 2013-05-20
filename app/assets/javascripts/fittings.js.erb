@@ -48,13 +48,11 @@ evefits.fittings.list = function(){
 
     $.ajax({
       url: window.document.location,
-      dataType: 'jsonp',
-      jsonpCallback: 'fittings',
-      crossDomain: true,
-      success: function(data) {
-        for (var i = 0; i < data.fitting.length; i++) {
-          _list.fittings.push(new _Fitting(data.fitting[i]));
-        }
+      dataType: 'json',
+      jsonpCallback: 'fittings'
+    }).done(function(data){
+      for (var i = 0; i < data.fitting.length; i++) {
+        _list.fittings.push(new _Fitting(data.fitting[i]));
       }
     });
   };
@@ -101,22 +99,20 @@ evefits.fittings.create = function(){
 
     $.ajax({
       url: '<%= url.api_ships_path %>',
-      dataType: 'jsonp',
-      jsonpCallback: 'ships',
-      crossDomain: true,
-      success: function(data) {
-        for (var i = data.ships.length - 1; i >= 0; i--) {
-          var ship = new _Ship(data.ships[i]);
-          var groupExist = ko.utils.arrayFirst(_create.groups(), function(group){
-            return (group.name() === ship.group());
-          });
-          if(!groupExist){
-            var group = new _Group(ship.group());
-            group.ships.push(ship);
-            _create.groups.push(group);
-          } else {
-            groupExist.ships.push(ship);
-          }
+      dataType: 'json',
+      jsonpCallback: 'ships'
+    }).done(function(data){
+      for (var i = data.ships.length - 1; i >= 0; i--) {
+        var ship = new _Ship(data.ships[i]);
+        var groupExist = ko.utils.arrayFirst(_create.groups(), function(group){
+          return (group.name() === ship.group());
+        });
+        if(!groupExist){
+          var group = new _Group(ship.group());
+          group.ships.push(ship);
+          _create.groups.push(group);
+        } else {
+          groupExist.ships.push(ship);
         }
       }
     });
@@ -132,20 +128,22 @@ evefits.fittings.show = function(){
     var self = this;
     self.name = ko.observable();
     self.ship = ko.observable();
+    self.shipLoaded = ko.observable(false);
     self.modules = ko.observableArray();
     self.marketGroups = ko.observableArray();
     self.selectedMarketGroup = ko.observable();
+    self.fittingLoaded = ko.observable(false);
     self.selectMarketGroup = function(element){
       self.selectedMarketGroup(element);
     };
     self.backMarketGroup = function(){
       self.selectedMarketGroup(false);
     };
-    self.addModule = function(element){
+    self.addModule = function(module){
       ko.utils.arrayFirst(self.ship().slots(), function(slot){
-        if(element.slot().toLowerCase() === slot.name().toLowerCase()){
+        if(module.slot().toLowerCase() === slot.name().toLowerCase()){
           if(slot.modules().length < slot.max()){
-            slot.addModule(element);
+            slot.addModule(module);
           }
         }
       });
@@ -158,6 +156,7 @@ evefits.fittings.show = function(){
     self.slots = ko.observableArray();
     self.hasAttributes = ko.observable(false);
     self.attributes = ko.observableArray();
+    self.loaded = ko.observable(false);
 
     /* Basic attributes */
     self.id = ko.observable(args.typeID);
@@ -170,7 +169,7 @@ evefits.fittings.show = function(){
     self.race = ko.observable(args.raceName);
     self.basePrice = ko.observable(args.basePrice);
 
-    /*  */
+    /* Core attributes */
     self.powerGrid = ko.observable(0);
     self.powerGridUsed = ko.observable(0);
     self.cpu = ko.observable(0);
@@ -219,21 +218,23 @@ evefits.fittings.show = function(){
     });
     self.getAttributes = function(){
       if(self.attributes().length === 0){
-        $.when(_getShipAttributes(self)).done(self.hasAttributes(true));
+        $.when(
+          _getShipAttributes(self)
+        ).done(function(){
+          self.hasAttributes(true)
+        });
       }
     };
-
     if(self.id()){
       $.ajax({
         url: '<%= url.api_ships_path %>/'+self.id(),
-        dataType: 'jsonp',
-        jsonpCallback: 'fitting',
-        crossDomain: true,
-        success: function(data) {
-          for (var i = 0; i < data.length; i++) {
-            self.slots.unshift(new _Slots(data[i]));
-          }
+        dataType: 'json',
+        jsonpCallback: 'fitting'
+      }).done(function(data){
+        for (var i = 0; i < data.length; i++) {
+          self.slots.unshift(new _Slots(data[i]));
         }
+        self.loaded(true);
       });
     }
   };
@@ -265,6 +266,7 @@ evefits.fittings.show = function(){
         module.getAttributes();
         self.slots.replace(freeSlot, module);
         self.modules.push(module);
+        _saveFittingModule(module.id());
       }
     };
     self.removeModule = function(module){
@@ -302,8 +304,19 @@ evefits.fittings.show = function(){
 
     self.getAttributes = function(){
       if(!self.hasAttributes()){
-        $.when(_getModuleAttributes(self)).done(self.hasAttributes(true));
+        $.when(
+          _getModuleAttributes(self)
+        ).done(function(){
+          self.hasAttributes(true)
+          self.updateAttributes();
+        });
       }
+    };
+
+    self.updateAttributes = function(){
+      var ship = _show.ship();
+      ship.powerGridUsed(ship.powerGridUsed() + self.powerGrid());
+      ship.cpuUsed(ship.cpuUsed() + self.cpu());
     };
 
     /* Clean up slot types for modules */
@@ -362,15 +375,13 @@ evefits.fittings.show = function(){
       if(value && self.modules().length === 0 && value === self){
         $.ajax({
           url: '<%= url.api_modules_path %>/'+self.id()+'/types',
-          dataType: 'jsonp',
-          jsonpCallback: 'types',
-          crossDomain: true,
-          success: function(data) {
-            for (var i = 0; i < data.length; i++) {
-              var module = data[i];
-              module.slotType = 'module';
-              self.modules.push(new _Module(module));
-            }
+          dataType: 'json',
+          jsonpCallback: 'types'
+        }).done(function(data){
+          for (var i = 0; i < data.length; i++) {
+            var module = data[i];
+            module.slotType = 'module';
+            self.modules.push(new _Module(module));
           }
         });
       }
@@ -407,29 +418,29 @@ evefits.fittings.show = function(){
     var dfr = $.Deferred();
     $.ajax({
       url: '<%= url.api_modules_path %>/'+args.id(),
-      dataType: 'jsonp',
-      jsonpCallback: 'attributes',
-      crossDomain: true,
-      success: function(data) {
-        for (var i = 0; i < data.length; i++) {
-          var attribute = data[i];
-          args.attributes.push(new _Attribute(attribute));
-          if(attribute.name.toLowerCase() === 'cpu'){
-            args.cpu(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'power'){
-            args.powerGrid(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'capacitorneed'){
-            args.capacitor(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'maxrange'){
-            args.maxRange(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'falloff'){
-            args.falloff(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'trackingspeed'){
-            args.tracking(attribute.value);
-          }
-        };
-        dfr.resolve();
-      }
+      dataType: 'json',
+      jsonpCallback: 'attributes'
+    }).done(function(data){
+      for (var i = 0; i < data.length; i++) {
+        var attribute = data[i];
+        args.attributes.push(new _Attribute(attribute));
+        if(attribute.name.toLowerCase() === 'cpu'){
+          args.cpu(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'power'){
+          args.powerGrid(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'capacitorneed'){
+          args.capacitor(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'maxrange'){
+          args.maxRange(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'falloff'){
+          args.falloff(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'trackingspeed'){
+          args.tracking(attribute.value);
+        }
+      };
+      dfr.resolve();
+    }).fail(function(data){
+      dfr.reject(data);
     });
     return dfr.promise();
   };
@@ -441,61 +452,100 @@ evefits.fittings.show = function(){
   * @params {object} args The ship constructor.
   */
   var _getShipAttributes = function(args){
-    return $.ajax({
+    var dfr = $.Deferred();
+    $.ajax({
       url: '<%= url.api_modules_path %>/'+args.id(),
-      dataType: 'jsonp',
-      jsonpCallback: 'attributes',
-      crossDomain: true,
-      success: function(data) {
-        for (var i = 0; i < data.length; i++) {
-          var attribute = data[i];
-          args.attributes.push(new _Attribute(attribute));
-          if(attribute.name.toLowerCase() === 'cpuoutput'){
-            args.cpu(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'poweroutput'){
-            args.powerGrid(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'capacitorcapacity'){
-            args.capacitor(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'hp'){
-            args.hullHp(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'rechargerate'){
-            args.rechargeRate(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'dronecapacity'){
-            args.droneBay(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'dronebandwidth'){
-            args.droneBandwidth(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'shieldCapacity'){
-            args.shieldHp(attribute.value);
-          } else if(attribute.name.toLowerCase() === 'armorhp'){
-            args.armorHp(attribute.value);
-          }
-        };
+      dataType: 'json',
+      jsonpCallback: 'attributes'
+    }).done(function(data){
+      for (var i = 0; i < data.length; i++) {
+        var attribute = data[i];
+        args.attributes.push(new _Attribute(attribute));
+        if(attribute.name.toLowerCase() === 'cpuoutput'){
+          args.cpu(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'poweroutput'){
+          args.powerGrid(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'capacitorcapacity'){
+          args.capacitor(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'hp'){
+          args.hullHp(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'rechargerate'){
+          args.rechargeRate(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'dronecapacity'){
+          args.droneBay(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'dronebandwidth'){
+          args.droneBandwidth(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'shieldCapacity'){
+          args.shieldHp(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'armorhp'){
+          args.armorHp(attribute.value);
+        }
+      }
+      dfr.resolve();
+    }).fail(function(data){
+      dfr.reject(data);
+    });
+    return dfr.promise();
+  };
+
+  var _saveFittingModule = function(id){
+    if(!_show.fittingLoaded()) {return false}
+    $.ajax({
+      url: window.document.location+'/module',
+      type: 'POST',
+      dataType: 'json',
+      data: {moduleId:id}
+    });
+  };
+
+  var _importFitting = function(args){
+    var dfr = $.Deferred();
+    var ship = new _Ship(args.ship);
+    ship.getAttributes();
+    ship.loaded.subscribe(function(value){
+      if(value) {
+        $.when(
+          _importShipModules(args)
+        ).done(function(){
+          dfr.resolve();
+        });
       }
     });
+    _show.name(args.name)
+    _show.ship(ship);
+    return dfr.promise();
+  };
+
+  var _importShipModules = function(args){
+    var dfr = $.Deferred();
+    for (var i = 0; i < args.invTypes.length; i++) {
+      var module = args.invTypes[i];
+      module.slotType = 'module';
+      _show.addModule(new _Module(module));
+    }
+    dfr.resolve();
+    return dfr.promise();
   };
 
   var _loadEnviromentData = function(){
     $.ajax({
       url: window.document.location,
-      dataType: 'jsonp',
-      jsonpCallback: 'fitting',
-      crossDomain: true,
-      success: function(data) {
-        var ship = new _Ship(data.ship);
-        ship.getAttributes();
-        _show.name(data.name)
-        _show.ship(ship);
-      }
+      dataType: 'json',
+      jsonpCallback: 'fitting'
+    }).done(function(data){
+      $.when(
+        _importFitting(data)
+      ).done(function(){
+        _show.fittingLoaded(true);
+      });
     });
     $.ajax({
       url: '<%= url.api_modules_path %>',
-      dataType: 'jsonp',
-      jsonpCallback: 'modules',
-      crossDomain: true,
-      success: function(data) {
-        for (var i = 0; i < data.length; i++) {
-          _show.marketGroups.push(new _Group(data[i]));
-        };
+      dataType: 'json',
+      jsonpCallback: 'modules'
+    }).done(function(data){
+      for (var i = 0; i < data.length; i++) {
+        _show.marketGroups.push(new _Group(data[i]));
       }
     });
   };
