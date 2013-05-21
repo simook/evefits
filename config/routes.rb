@@ -4,11 +4,11 @@ Evefits::Application.routes.draw do
   end
   devise_for :users
 
-  resources :users do
-    resources :fitting do
-      member do
-        post 'module'
-      end
+  resources :users
+
+  resources :fitting do
+    member do
+      post 'module'
     end
   end
 
