@@ -1,0 +1,58 @@
+<% url = Rails.application.routes.url_helpers %>
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  fittings: {
+    list: {}
+  }
+});
+
+evefits.fittings.list = function(){
+  var _viewModel = function(){
+    var self = this;
+    self.fittings = ko.observableArray();
+    self.header = ko.computed(function(){
+      if(self.fittings().length === 1){
+        return '1 Fitting';
+      } else {
+        return self.fittings().length + ' Fittings';
+      }
+    });
+  };
+
+  var _Fitting = function(args){
+    var self = this;
+    self.name = ko.observable(args.name);
+    self.shipId = ko.observable(args.ship_id);
+    self.ship = ko.observable(args.ship);
+    self.url = ko.computed(function(){
+      return window.location.href+'/'+args.id+'/edit';
+    });
+    self.image = ko.computed(function(){
+      return window.location.origin+'/assets/ships/'+self.shipId()+'.png';
+    });
+  };
+
+
+  var _list = new _viewModel();
+
+  var _init = function(){
+    ko.applyBindings(_list);
+
+    $.ajax({
+      url: window.document.location,
+      dataType: 'json',
+      jsonpCallback: 'fittings'
+    }).done(function(data){
+      for (var i = 0; i < data.fitting.length; i++) {
+        _list.fittings.push(new _Fitting(data.fitting[i]));
+      }
+    });
+  };
+
+  return {init:_init}
+}();

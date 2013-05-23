@@ -1,0 +1,65 @@
+<% url = Rails.application.routes.url_helpers %>
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  fittings: {
+    cap: {}
+  }
+});
+
+evefits.fittings.cap = function(){
+
+  var _delta = function(args){
+    var self = this;
+    self.step = 1000;
+    self.tau = args.rechargeRate() / 5.0;
+    self.capacitorCapacity = args.capacitor();
+    self.usageRate = 0;
+    self.delta = _capacitorDelta(self.capacitorCapacity, self.tau, self.usageRate);
+    self.peakRate = _peakRechargeRate(self.capacitorCapacity, self.tau);
+
+    if(self.delta < 0){
+      var time = 0, increment,
+      capacitorLeft = self.capacitorCapacity;
+      while(self.capacitorCapacity > 0 && time < 3600000){
+        //todo: calculate each module cap usage
+
+        var k1 = _capacitorDeviation(self.capacitorCapacity),
+        k2 = _capacitorDeviation(self.capacitorCapacity + 0.5 * self.step * k1),
+        k3 = _capacitorDeviation(self.capacitorCapacity + 0.5 * self.step * k2),
+        k4 = _capacitorDeviation(self.capacitorCapacity + self.step * k3),
+        increment = self.step * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+        capacitorLeft += increment;
+        time += self.step;
+      }
+
+      var rate = increment / self.step,
+      zero = (increment - capacitorLeft) * rate;
+      time -= (1 - zero) * step;
+      return self.usageRate - self.peakRate, false, time / 1000;
+    } else {
+      var capacitorLeft = 0.5 * (self.capacitorCapacity - self.tau * (Math.max(0, self.usageRate)) + Math.sqrt(self.delta));
+      debugger
+      return self.usageRate - self.peakRate, true, 100 * capacitorLeft / self.capacitorCapacity;
+    }
+  };
+
+  var _peakRechargeRate = function(capacitorCapacity, tau){
+    return (Math.sqrt(0.25) - 0.25) * 2 * self.capacitorCapacity / tau;
+  };
+
+  var _capacitorDelta = function(capacitorCapacity, tau, usageRate){
+   return capacitorCapacity * capacitorCapacity - 2 * tau * (Math.max(0, usageRate)) * capacitorCapacity;
+  };
+
+  var _capacitorDeviation = function(capacitor, capacitorCapacity, tau){
+    var capacitor = Math.max(capacitor, 0);
+    return (Math.sqrt(c / capacitorCapacity) - c / capacitorCapacity) * 2 * capacitorCapacity / tau;
+  };
+
+
+}();

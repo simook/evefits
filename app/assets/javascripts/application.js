@@ -14,4 +14,6 @@
 //= require jquery_ujs
 //= require bootstrap
 //= require knockout-2.2.1
+//= require jquery.icheck
+//= require bootstrap-contextmenu
 //= require_tree .

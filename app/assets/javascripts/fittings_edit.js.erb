@@ -1,0 +1,914 @@
+<% url = Rails.application.routes.url_helpers %>
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  fittings: {
+    edit: {}
+  }
+});
+
+evefits.fittings.edit = function(){
+  var _viewModel = function(){
+    var self = this;
+    self.config = ko.observable();
+    self.name = ko.observable();
+    self.ship = ko.observable();
+    self.shipLoaded = ko.observable(false);
+    self.modules = ko.observableArray();
+    self.marketGroups = ko.observableArray();
+    self.selectedMarketGroup = ko.observable();
+    self.fittingLoaded = ko.observable(false);
+    self.selectMarketGroup = function(element){
+      self.selectedMarketGroup(element);
+    };
+    self.backMarketGroup = function(){
+      self.selectedMarketGroup(false);
+    };
+    self.addModule = function(module){
+      ko.utils.arrayFirst(self.ship().slots(), function(slot){
+        if(module.slot().toLowerCase() === slot.name().toLowerCase()){
+          if(slot.modules().length < slot.max()){
+            slot.addModule(module);
+          }
+        }
+      });
+    };
+  };
+
+  var _Ship = function(args){
+    var self = this;
+    /* UI stuff */
+    self.slots = ko.observableArray();
+    self.hasAttributes = ko.observable(false);
+    self.attributes = ko.observableArray();
+    self.loaded = ko.observable(false);
+
+    /* Basic attributes */
+    self.id = ko.observable(args.typeID);
+    self.group = ko.observable(args.groupName);
+    self.name = ko.observable(args.typeName);
+    self.description = ko.observable(args.description);
+    self.mass = ko.observable(args.mass);
+    self.volume = ko.observable(args.volume);
+    self.cargo = ko.observable(args.capacity);
+    self.race = ko.observable(args.raceName);
+    self.basePrice = ko.observable(args.basePrice);
+
+    /* Fitting attributes */
+    self.launchers = ko.observable();
+    self.turrets = ko.observable();
+
+    /* Powergrid & cpu attributes */
+    self.powerGrid = ko.observable(0);
+    self.powerGridUsed = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'powerGridTotal');
+    });
+    self.cpu = ko.observable(0);
+    self.cpuUsed = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'cpuTotal');
+    });
+
+    /* Targeting attributes */
+    self.scanTypes = ko.observableArray();
+    self.targets = ko.observable(0);
+    self.scanStrengthTotal = ko.computed(function(){
+      var maxStrength = -1;
+      ko.utils.arrayForEach(self.scanTypes(), function(type){
+        if(type.value() > maxStrength){
+          maxStrength = type.value();
+        }
+      });
+      return maxStrength;
+    });
+    self.scanResolution = ko.observable(0);
+    self.range = ko.observable(0);
+
+    /* Misc attributes */
+    self.speed = ko.observable(0);
+    self.agility = ko.observable(0);
+    self.signature = ko.observable(0);
+    self.baseWarpSpeed = ko.observable(1);
+    self.baseWarpSpeedMultiplier = ko.observable(1);
+    self.warpSpeed = ko.computed(function(){
+      return 3 * self.baseWarpSpeed() * self.baseWarpSpeedMultiplier();
+    });
+    self.alignTime = ko.computed(function(){
+      return -Math.log(0.25) * self.agility() * self.mass() / 1000000.0;
+    });
+
+    /* Drone attributes */
+    self.droneBay = ko.observable(0);
+    self.droneBayUsed = ko.observable(0);
+    self.droneBandwidth = ko.observable(0);
+    self.droneBandwidthUsed = ko.observable(0);
+    self.droneRange = ko.observable(0);
+
+    /* Firepower attributes */
+    self.turretDps = ko.observable(0);
+    self.missleDps = ko.observable(0);
+    self.droneDps = ko.observable(0);
+    self.dps = ko.computed(function(){
+      return (self.turretDps() + self.missleDps() + self.droneDps());
+    });
+    self.volley = ko.observable(0);
+
+    /* Resistance attributes */
+    self.shieldHp = ko.observable(0);
+    self.shieldEM = ko.observable(0);
+    self.shieldEMTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'shieldEMTotal') + self.shieldEM();
+    });
+    self.shieldThermal = ko.observable(0);
+    self.shieldThermalTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'shieldThermalTotal') + self.shieldThermal();
+    });
+    self.shieldKinetic = ko.observable(0);
+    self.shieldKineticTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'shieldKineticTotal') + self.shieldKinetic();
+    });
+    self.shieldExplosive = ko.observable(0);
+    self.shieldExplosiveTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'shieldExplosiveTotal') + self.shieldExplosive();
+    });
+    self.armorHp = ko.observable(0);
+    self.armorEM = ko.observable(0);
+    self.armorEMTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'armorEMTotal') + self.armorEM();
+    });
+    self.armorThermal = ko.observable(0);
+    self.armorThermalTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'armorThermalTotal') + self.armorThermal();
+    });
+    self.armorKinetic = ko.observable(0);
+    self.armorKineticTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'armorKineticTotal') + self.armorKinetic();
+    });
+    self.armorExplosive = ko.observable(0);
+    self.armorExplosiveTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'armorExplosiveTotal') + self.armorExplosive();
+    });
+    self.hullHp = ko.observable(0);
+    self.hullEM = ko.observable(0);
+    self.hullEMTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'hullEMTotal') + self.hullEM();
+    });
+    self.hullThermal = ko.observable(0);
+    self.hullThermalTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'hullThermalTotal') + self.hullThermal();
+    });
+    self.hullKinetic = ko.observable(0);
+    self.hullKineticTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'hullKineticTotal') + self.hullKinetic();
+    });
+    self.hullExplosive = ko.observable(0);
+    self.hullExplosiveTotal = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'hullExplosiveTotal') + self.hullExplosive();
+    });
+    self.ehp = ko.observable(0);
+    self.totalHp = ko.computed(function(){
+      return (self.shieldHp() + self.armorHp() + self.hullHp());
+    });
+
+    /* Capacitor attributes */
+    self.capacitor = ko.observable();
+    self.rechargeRate = ko.observable(0);
+    self.rechargeTime = ko.computed(function(){
+      return _millisecondsToString(self.rechargeRate());
+    });
+    self.capacitorDelta = ko.computed(function(){
+      var delta = _capacitorDelta(self.rechargeRate(), self.capacitor());
+      if(delta > 0){
+        return '+'+delta.toFixed(1)
+      } else {
+        return delta.toFixed(1);
+      }
+    });
+    self.capacitorUseDelta = ko.computed(function(){
+      var delta = 0;
+      ko.utils.arrayForEach(self.slots(), function(slot){
+        delta = (delta + slot.capacitorUseTotal());
+      });
+      if(delta > 0){
+        return '+'+delta.toFixed(2)
+      } else {
+        return delta.toFixed(2)
+      }
+    });
+    self.capStable = ko.computed(function(){
+
+    });
+
+    /* Recharge rates */
+    self.shieldRecharge = ko.observable(0)
+    self.shieldRechargeRate = ko.computed(function(){
+      return 10.0 / (self.shieldRecharge() / 1000.0) * Math.sqrt(0.25) * (1 - Math.sqrt(0.25)) * self.shieldHp();
+    });
+
+    self.image = ko.computed(function(){
+      return window.location.origin+'/assets/ships/'+self.id()+'.png';
+    });
+    self.getAttributes = function(){
+      if(self.attributes().length === 0){
+        $.when(
+          _getShipAttributes(self)
+        ).done(function(){
+          self.hasAttributes(true)
+        });
+      }
+    };
+    if(self.id()){
+      $.ajax({
+        url: '<%= url.api_ships_path %>/'+self.id(),
+        dataType: 'json',
+        jsonpCallback: 'fitting'
+      }).done(function(data){
+        for (var i = 0; i < data.length; i++) {
+          self.slots.unshift(new _Slots(data[i]));
+        }
+        self.loaded(true);
+      });
+    }
+  };
+
+  var _Slots = function(args){
+    var self = this;
+    /* UI Stuff */
+    self.name = ko.observable(args.attributename);
+    self.max = ko.observable(args.value);
+    self.slots = ko.observableArray();
+    self.modules = ko.observableArray();
+
+    /* Computed attributes */
+    self.powerGridTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'powerGrid');
+    });
+    self.cpuTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'cpu');
+    });
+    self.capacitorUseTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'capacitorUse')
+    });
+    self.shieldEMTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'shieldEM');
+    });
+    self.shieldThermalTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'shieldThermal');
+    });
+    self.shieldKineticTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'shieldKinetic');
+    });
+    self.shieldExplosiveTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'shieldExplosive');
+    });
+    self.armorEMTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'armorEM');
+    });
+    self.armorThermalTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'armorThermal');
+    });
+    self.armorKineticTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'armorKinetic');
+    });
+    self.armorExplosiveTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'armorExplosive');
+    });
+    self.hullEMTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'hullEM');
+    });
+    self.hullThermalTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'hullThermal');
+    });
+    self.hullKineticTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'hullKinetic');
+    });
+    self.hullExplosiveTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'hullExplosive');
+    });
+
+    for (var i = 0; i < self.max(); i++) {
+      self.slots.push(new _Module({
+        slot: self.name(),
+        slotType: 'empty'
+      }));
+    }
+    self.addModule = function(module){
+      var freeSlot = ko.utils.arrayFirst(self.slots(), function(slot){
+        return (slot.slotType() === 'empty');
+      });
+      if(freeSlot){
+        module.getAttributes();
+        self.slots.replace(freeSlot, module);
+        self.modules.push(module);
+        _saveFittingModule({method:'add',module:module.id()});
+      }
+    };
+    self.removeModule = function(module){
+      var slot = new _Module({slotType:'empty',slot:self.name()});
+      self.slots.replace(module, slot);
+      self.modules.remove(module);
+      _saveFittingModule({method:'remove',module:module.id()});
+    };
+  };
+
+  var _Module = function(args){
+    var self = this;
+    /* UI stuff */
+    self.slot = ko.observable(args.hasOwnProperty('slot') ? args.slot : undefined);
+    self.slotType = ko.observable(args.hasOwnProperty('slotType') ? args.slotType : undefined);
+    self.icon = ko.observable();
+    self.attributes = ko.observableArray();
+    self.hasAttributes = ko.observable(false);
+    self.enabled = ko.observable(true);
+
+    /* Basic attributes */
+    self.id = ko.observable(args.hasOwnProperty('id') ? args.id : undefined);
+    self.groupID = ko.observable(args.hasOwnProperty('groupID') ? args.groupID : undefined);
+    self.slot = ko.observable(args.hasOwnProperty('slot') ? args.slot : undefined);
+    self.name = ko.observable(args.hasOwnProperty('typeName') ? args.typeName : undefined);
+    self.mass = ko.observable(args.hasOwnProperty('mass') ? args.mass : undefined);
+    self.volume = ko.observable(args.hasOwnProperty('volume') ? args.volume : undefined);
+    self.capacity = ko.observable(args.hasOwnProperty('capacity') ? args.capacity : undefined);
+    self.description = ko.observable(args.hasOwnProperty('description') ? args.description : undefined);
+    self.price = ko.observable(args.hasOwnProperty('basePrice') ? args.basePrice : undefined);
+
+    /* Powergrid & cpu attributes */
+    self.powerGrid = ko.observable();
+    self.cpu = ko.observable();
+
+    /* Targeting attributes */
+    self.maxRange = ko.observable();
+    self.falloff = ko.observable();
+    self.tracking = ko.observable();
+
+    /* Charge attributes */
+    self.charge = ko.observable();
+    self.chargeSize = ko.observable();
+    self.chargeGroup = ko.observable();
+    self.reloadTime = ko.observable();
+
+    /* Fitting attributes */
+    self.maxGroupActive = ko.observable();
+    self.maxGroupFitted = ko.observable()
+
+    /* Resistance attributes */
+    self.shieldEM = ko.observable(0);
+    self.shieldThermal = ko.observable(0);
+    self.shieldKinetic = ko.observable(0);
+    self.shieldExplosive = ko.observable(0);
+    self.armorEM = ko.observable(0);
+    self.armorThermal = ko.observable(0);
+    self.armorKinetic = ko.observable(0);
+    self.armorExplosive = ko.observable(0);
+    self.hullEM = ko.observable(0);
+    self.hullThermal = ko.observable(0);
+    self.hullKinetic = ko.observable(0);
+    self.hullExplosive = ko.observable(0);
+
+    /* Capacitor attributes */
+    self.capacitor = ko.observable(0);
+    self.speed = ko.observable(0);
+    self.delay = ko.observable(0);
+    self.capacitorLeech = ko.observable(0);
+    self.capacitorTransfer = ko.observable(0);
+    self.capacitorBoost = ko.observable(0);
+    self.cycleTime = ko.computed(function(){
+      var speed = self.speed() + self.delay();
+      return speed;
+    });
+    self.capacitorUse = ko.computed(function(){
+      if(self.enabled()){
+        var capNeed = self.capacitor(),
+        cycleTime = self.cycleTime();
+        if(capNeed === 0.0 && self.capacitorTransfer() != 0){
+          capNeed = -self.capacitorTransfer();
+        }
+        //todo: check for cap boost & bonus
+        if(capNeed != 0){
+          return cycleTime != 0 ? -(capNeed / (cycleTime / 1000.0)).toFixed(2) : 0;
+        } else {
+          return 0;
+        }
+        return capNeed.toFixed(2);
+      } else {
+        return 0;
+      }
+    });
+
+    self.getAttributes = function(){
+      if(!self.hasAttributes()){
+        $.when(
+          _getModuleAttributes(self)
+        ).done(function(){
+          self.hasAttributes(true)
+        });
+      }
+    };
+
+    /* Clean up slot types for modules */
+    if(self.slotType() === 'module' && self.slot()){
+      switch (self.slot().toLowerCase()) {
+        case "lopower":
+          self.slot('lowslots');
+          break;
+        case "medpower":
+          self.slot('medslots');
+          break;
+        case "hipower":
+          self.slot('hislots');
+          break;
+        case "rigslot":
+          self.slot('rigslots');
+          break;
+      }
+    }
+    /* Clean up slot types for empty modules placeholders */
+    if(self.slotType() === 'empty' && self.slot()){
+      switch (self.slot().toLowerCase()) {
+        case "lowslots":
+          self.name('Low Slot');
+          self.icon(window.location.origin+'/assets/items/8_64_9.png');
+          break;
+        case "medslots":
+          self.name('Med Slot');
+          self.icon(window.location.origin+'/assets/items/8_64_10.png');
+          break;
+        case "hislots":
+          self.name('High Slot');
+          self.icon(window.location.origin+'/assets/items/8_64_11.png');
+          break;
+        case "rigslots":
+          self.name('Rig Slot');
+          self.icon();
+          break;
+      }
+    }
+  };
+
+  var _Charge = function(){
+
+  };
+
+  var _ScanType = function(args){
+    var self = this;
+    self.name = ko.observable(args.name);
+    self.value = ko.observable(args.value)
+  };
+
+  var _Group = function(args){
+    var self = this;
+    self.name = ko.observable(args.marketGroupName);
+    self.icon = ko.observable(args.iconID);
+    self.id = ko.observable(args.marketGroupID);
+    self.marketGroups = ko.observableArray();
+    self.modules = ko.observableArray();
+    if(args.groups){
+      for (var i = 0; i < args.groups.length; i++) {
+        self.marketGroups.push(new _Group(args.groups[i]));
+      }
+    }
+    _edit.selectedMarketGroup.subscribe(function(value){
+      if(value && self.modules().length === 0 && value === self){
+        $.ajax({
+          url: '<%= url.api_modules_path %>/'+self.id()+'/types',
+          dataType: 'json',
+          jsonpCallback: 'types'
+        }).done(function(data){
+          for (var i = 0; i < data.length; i++) {
+            var module = data[i];
+            module.slotType = 'module';
+            self.modules.push(new _Module(module));
+          }
+        });
+      }
+    });
+  };
+
+  var _DamagePattern = function(){
+    var self = this;
+    self.em = ko.observable();
+    self.thermal = ko.observable();
+    self.kinetic = ko.observable();
+    self.explosive = ko.observable();
+  };
+
+  /**
+  * A attribute.
+  * @class _Attribute
+  * @constructor
+  * @params {object} args The arguments for this attribute.
+  */
+  var _Attribute = function(args){
+    var self = this;
+    self.name = ko.observable(args.name);
+    self.value = ko.observable(args.value);
+    self.id = ko.observable(args.attributes.attributeID);
+    self.category = ko.observable(args.attributes.categoryID);
+    self.defaultValue = ko.observable(args.attributes.defaultValue);
+    self.description = ko.observable(args.attributes.description);
+    self.displayName = ko.observable(args.attributes.displayName);
+    self.highIsGood = ko.observable(args.attributes.highIsGood);
+    self.icon = ko.observable(args.attributes.iconID);
+    self.stackable = ko.observable(args.attributes.stackable);
+  };
+
+  /**
+  * Gets all the extended attributes for modules.
+  * @method _getModuleAttributes
+  * @async
+  * @params {object} args The module constructor.
+  */
+  var _getModuleAttributes = function(args){
+    var dfr = $.Deferred();
+    $.ajax({
+      url: '<%= url.api_modules_path %>/'+args.id(),
+      dataType: 'json',
+      jsonpCallback: 'attributes'
+    }).done(function(data){
+      for (var i = 0; i < data.length; i++) {
+        var attribute = data[i];
+        args.attributes.push(new _Attribute(attribute));
+        if(attribute.name.toLowerCase() === 'cpu'){
+          args.cpu(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'power'){
+          args.powerGrid(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'capacitorneed'){
+          args.capacitor(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'maxrange'){
+          args.maxRange(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'falloff'){
+          args.falloff(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'trackingspeed'){
+          args.tracking(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'speed' || attribute.name.toLowerCase() === 'duration' || attribute.name.toLowerCase() === 'missilelaunchduration'){
+          args.speed(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'reloadtime'){
+          args.reloadTime(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'modulereactivationdelay'){
+          args.delay(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'powertransferamount'){
+          args.capacitorTransfer(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'shieldemdamageresonance'){
+          args.shieldEM(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'shieldexplosivedamageresonance'){
+          args.shieldExplosive(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'shieldkineticdamageresonance'){
+          args.shieldKinetic(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'shieldthermaldamageresonance'){
+          args.shieldThermal(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'armoremdamageresonance'){
+          args.armorEM(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'armorexplosivedamageresonance'){
+          args.armorExplosive(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'armorkineticdamageresonance'){
+          args.armorKinetic(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'armorthermaldamageresonance'){
+          args.armorThermal(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'hullkineticdamageresonance'){
+          args.hullKinetic(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'hullthermaldamageresonance'){
+          args.hullThermal(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'hullexplosivedamageresonance'){
+          args.hullExplosive(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'hullemdamageresonance'){
+          args.hullEM(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'maxgroupactive'){
+          args.maxGroupActive(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'maxgroupfitted'){
+          args.maxGroupFitted(attribute.value);
+        }
+      };
+      dfr.resolve();
+    }).fail(function(data){
+      dfr.reject(data);
+    });
+    return dfr.promise();
+  };
+
+  /**
+  * Gets all the extended attributes for ships.
+  * @method _getShipAttributes
+  * @async
+  * @params {object} args The ship constructor.
+  */
+  var _getShipAttributes = function(args){
+    var dfr = $.Deferred();
+    $.ajax({
+      url: '<%= url.api_modules_path %>/'+args.id(),
+      dataType: 'json',
+      jsonpCallback: 'attributes'
+    }).done(function(data){
+      for (var i = 0; i < data.length; i++) {
+        var attribute = data[i];
+        args.attributes.push(new _Attribute(attribute));
+        if(attribute.name.toLowerCase() === 'cpuoutput'){
+          args.cpu(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'poweroutput'){
+          args.powerGrid(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'capacitorcapacity'){
+          args.capacitor(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'rechargerate'){
+          args.rechargeRate(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'dronecapacity'){
+          args.droneBay(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'dronebandwidth'){
+          args.droneBandwidth(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'shieldcapacity'){
+          args.shieldHp(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'armorhp'){
+          args.armorHp(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'hp'){
+          args.hullHp(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'shieldemdamageresonance'){
+          args.shieldEM(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'shieldexplosivedamageresonance'){
+          args.shieldExplosive(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'shieldkineticdamageresonance'){
+          args.shieldKinetic(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'shieldthermaldamageresonance'){
+          args.shieldThermal(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'armoremdamageresonance'){
+          args.armorEM(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'armorexplosivedamageresonance'){
+          args.armorExplosive(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'armorkineticdamageresonance'){
+          args.armorKinetic(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'armorthermaldamageresonance'){
+          args.armorThermal(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'kineticdamageresonance'){
+          args.hullKinetic(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'thermaldamageresonance'){
+          args.hullThermal(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'explosivedamageresonance'){
+          args.hullExplosive(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'emdamageresonance'){
+          args.hullEM(_baseResistance(attribute.value));
+        } else if(attribute.name.toLowerCase() === 'maxvelocity'){
+          args.speed(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'agility'){
+          args.agility(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'maxtargetrange'){
+          args.range(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'launcherslotsleft'){
+          args.launchers(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'turretslotsleft'){
+          args.turrets(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'maxlockedtargets'){
+          args.targets(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'scanradarstrength'){
+          args.scanTypes.push(new _ScanType(attribute));
+        } else if(attribute.name.toLowerCase() === 'scanladarstrength'){
+          args.scanTypes.push(new _ScanType(attribute));
+        } else if(attribute.name.toLowerCase() === 'scanmagnetometricstrength'){
+          args.scanTypes.push(new _ScanType(attribute));
+        } else if(attribute.name.toLowerCase() === 'scangravimetricstrength'){
+          args.scanTypes.push(new _ScanType(attribute));
+        } else if(attribute.name.toLowerCase() === 'dronecapacity'){
+          args.droneBay(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'dronebandwidth'){
+          args.droneBandwidth(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'shieldrechargerate'){
+          args.shieldRecharge(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'signatureradius'){
+          args.signature(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'scanresolution'){
+          args.scanResolution(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'basewarpspeed'){
+          args.baseWarpSpeed(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'warpspeedmultiplier'){
+          args.baseWarpSpeedMultiplier(attribute.value);
+        }
+      }
+      dfr.resolve();
+    }).fail(function(data){
+      dfr.reject(data);
+    });
+    return dfr.promise();
+  };
+
+  var _trackModuleAttributes = function(modules, attribute){
+    var total = 0;
+    ko.utils.arrayForEach(modules, function(module){
+      if(module.hasAttributes() && module.enabled()){
+        total = (total + module[attribute]());
+      } else {
+        module.hasAttributes.subscribe(function(value){
+          if(value && module.enabled()){
+            total = (total + module[attribute]());
+          }
+        });
+      }
+    });
+    return total;
+  };
+
+  var _trackSlotTotalAttributes = function(slots, attribute){
+    var total = 0;
+    ko.utils.arrayForEach(slots, function(slot){
+      total = (total + slot[attribute]());
+    });
+    return total;
+  };
+
+  var _baseResistance = function(arg1){
+    return (1.0 - arg1) * 100;
+  };
+
+  var _capacitorDelta = function(rechargeRate, capacitor){
+   return 10.0 / (rechargeRate / 1000.0) * Math.sqrt(0.25) * (1 - Math.sqrt(0.25)) * capacitor;
+  };
+
+  var _capacitorSimulator = function(args){
+    var tau = args.rechargeRate() / 5.0,
+    capWrap = args.capacitor(),
+    capLowest = args.capacitor(),
+    capLowestPre = args.capacitor(),
+    cap = args.capacitor(),
+    tWrap = 0,
+    tNow = 0,
+    tLast = 0,
+    i = 0;
+  };
+
+  var _millisecondsToString = function(arg1){
+    var seconds = arg1 / 1000,
+    //numyears = Math.floor(seconds / 31536000),
+    //numdays = Math.floor((seconds % 31536000) / 86400),
+    //numhours = Math.floor(((seconds % 31536000) % 86400) / 3600),
+    numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60),
+    numseconds = (((seconds % 31536000) % 86400) % 3600) % 60;
+    return Math.round(numminutes) + "m " + Math.round(numseconds) + "s";
+  }
+
+  var _saveFittingModule = function(args){
+    if(!_edit.fittingLoaded()) {return false}
+    $.ajax({
+      url: _edit.config().moduleFittingPath,
+      type: 'POST',
+      dataType: 'json',
+      data: args
+    });
+  };
+
+  var _importFitting = function(args){
+    var dfr = $.Deferred();
+    var ship = new _Ship(args.ship);
+    ship.getAttributes();
+    ship.loaded.subscribe(function(value){
+      if(value) {
+        $.when(
+          _importShipModules(args)
+        ).done(function(){
+          dfr.resolve();
+        });
+      }
+    });
+    _edit.name(args.name)
+    _edit.ship(ship);
+    return dfr.promise();
+  };
+
+  var _importShipModules = function(args){
+    var dfr = $.Deferred();
+    for (var i = 0; i < args.invTypes.length; i++) {
+      var module = args.invTypes[i];
+      module.slotType = 'module';
+      _edit.addModule(new _Module(module));
+    }
+    dfr.resolve();
+    return dfr.promise();
+  };
+
+  var _loadEnviromentData = function(){
+    $.ajax({
+      url: _edit.config().editFittingPath,
+      dataType: 'json',
+      jsonpCallback: 'fitting'
+    }).done(function(data){
+      $.when(
+        _importFitting(data)
+      ).done(function(){
+        _edit.fittingLoaded(true);
+      });
+    });
+    $.ajax({
+      url: '<%= url.api_modules_path %>',
+      dataType: 'json',
+      jsonpCallback: 'modules'
+    }).done(function(data){
+      for (var i = 0; i < data.length; i++) {
+        _edit.marketGroups.push(new _Group(data[i]));
+      }
+    });
+  };
+
+  ko.bindingHandlers.progress = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var options = valueAccessor(),
+      progressLabel = $('<div />',{"class":"progress-label"}),
+      progressBar = $('<div />',{"class":"bar"});
+
+      $(element).append(progressLabel, progressBar);
+    },
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var options = valueAccessor(),
+      percent = (options.min / options.max * 100).toFixed(1);
+
+      $('.progress-label',element).text(percent+'%');
+      $('.bar',element).attr({title:percent+'%'}).data({percent:percent}).css({width:percent+'%'});
+
+      if(options && options.color){
+        $(element).addClass(options.color);
+      } else {
+        if(percent > 100){
+          $(element).removeClass('progress-green').addClass('progress-red');
+        } else {
+          $(element).removeClass('progress-red').addClass('progress-green');
+        }
+      }
+    }
+  };
+
+  ko.bindingHandlers.formatNumber = {
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var options = valueAccessor(),
+      number = options.number,
+      suffix = '';
+      if(number && options.power === 1000){
+        suffix = 'k';
+      }
+      if(number && options.power){
+        number = options.number / options.power
+      }
+      if(number && options.precision){
+        number = number.toFixed(options.precision);
+      }
+      $(element).text(isNaN(number) ? '' : number+suffix);
+    }
+  };
+
+  ko.bindingHandlers.formatDistance = {
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var options = valueAccessor(),
+      number = options.number / options.power,
+      suffix = '';
+      if(options.power === 1000){
+        suffix = 'km';
+      }
+      if(options.precision){
+        number = number.toFixed(options.precision);
+      }
+      $(element).text(isNaN(number) ? '' : number+suffix);
+    }
+  };
+
+  ko.bindingHandlers.formatCurrency = {
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var options = valueAccessor(),
+      number = options.number / options.power,
+      suffix = '';
+      if(number && options.power <= 1000){
+        suffix = 'K';
+      } else if(options.power <= 1000000 && options.power > 1000){
+        suffix = 'M';
+      } else if(options.power <= 1000000000 && options.power > 1000000){
+        suffix = 'B';
+      }
+      if(number && options.precision){
+        number = number.toFixed(options.precision);
+      }
+      $(element).text(isNaN(number) ? '' : number+suffix);
+    }
+  };
+
+  ko.bindingHandlers.icheck = {
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var options = valueAccessor();
+      var bindings = allBindingsAccessor();
+      var defaults = {};
+      $(element).iCheck($.extend(defaults, options));
+
+      if(bindings && bindings.checked){
+        var checked = ko.utils.unwrapObservable(bindings.checked);
+        $(element).iCheck(checked ? 'check':'uncheck');
+        $(element).on('ifChanged', function(event){
+          bindings.checked($(this).is(':checked'));
+        });
+      }
+    }
+  }
+
+  var _edit = new _viewModel();
+
+  var _init = function(args){
+    ko.applyBindings(_edit);
+    _edit.config(args);
+    _loadEnviromentData();
+  };
+
+  return {init:_init,
+          viewModel:_edit}
+}();

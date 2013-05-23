@@ -10,6 +10,7 @@ group :assets do
 end
 
 group :development do
+  gem "pry-rails"
   gem "rspec-rails", ">= 2.12.2"
   gem "guard-bundler", ">= 1.0.0"
   gem "guard-rails", ">= 0.4.0"
@@ -30,3 +31,4 @@ gem "rolify", ">= 3.2.0"
 gem "simple_form", ">= 2.1.0"
 gem "figaro", ">= 0.6.3"
 gem "active_model_serializers"
+gem "nokogiri"

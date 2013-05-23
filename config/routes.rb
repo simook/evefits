@@ -19,6 +19,11 @@ Evefits::Application.routes.draw do
         get 'types'
       end
     end
+    resources :evecentral, :only => [:marketstat] do
+      member do
+        get 'marketstat'
+      end
+    end
   end
 
   root :to => "home#index"

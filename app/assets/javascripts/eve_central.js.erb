@@ -1,0 +1,20 @@
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  evecentral: {
+    api: {}
+  }
+});
+
+evefits.evecentral.api = function(){
+  var _endpoints = {
+    marketstat: 'http://api.eve-central.com/api/marketstat',
+    quicklook: 'http://api.eve-central.com/api/quicklook'
+  };
+
+  var _
+}();

@@ -1,0 +1,14 @@
+<% url = Rails.application.routes.url_helpers %>
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  fittings: {
+    show: {}
+  }
+});
+
+evefits.fittings.show = function(){}();

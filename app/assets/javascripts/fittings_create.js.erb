@@ -1,0 +1,73 @@
+<% url = Rails.application.routes.url_helpers %>
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  fittings: {
+    create: {}
+  }
+});
+
+evefits.fittings.create = function(){
+  var _viewModel = function(){
+    var self = this;
+    self.groups = ko.observableArray();
+    self.selectedShip = ko.observable();
+    self.selectShip = function(element){
+      self.selectedShip(element);
+    };
+  };
+
+  var _Group = function(arg1){
+    var self = this;
+    self.name = ko.observable(arg1);
+    self.ships = ko.observableArray();
+  };
+
+  var _Ship = function(args){
+    var self = this;
+    self.id = ko.observable(args.typeID);
+    self.group = ko.observable(args.groupName);
+    self.name = ko.observable(args.typeName);
+    self.description = ko.observable(args.description);
+    self.mass = ko.observable(args.mass);
+    self.volume = ko.observable(args.volume);
+    self.capacity = ko.observable(args.capacity);
+    self.race = ko.observable(args.raceName);
+    self.basePrice = ko.observable(args.basePrice);
+    self.image = ko.computed(function(){
+      return window.location.origin+'/assets/ships/'+self.id()+'.png';
+    });
+  };
+
+  var _create = new _viewModel();
+
+  var _init = function(){
+    ko.applyBindings(_create);
+
+    $.ajax({
+      url: '<%= url.api_ships_path %>',
+      dataType: 'json',
+      jsonpCallback: 'ships'
+    }).done(function(data){
+      for (var i = data.ships.length - 1; i >= 0; i--) {
+        var ship = new _Ship(data.ships[i]);
+        var groupExist = ko.utils.arrayFirst(_create.groups(), function(group){
+          return (group.name() === ship.group());
+        });
+        if(!groupExist){
+          var group = new _Group(ship.group());
+          group.ships.push(ship);
+          _create.groups.push(group);
+        } else {
+          groupExist.ships.push(ship);
+        }
+      }
+    });
+  };
+
+  return {init:_init}
+}();

@@ -1,5 +1,5 @@
 class TypesSerializer < ActiveModel::Serializer
-  attributes :id, :typeName, :description, :mass, :volume, :capacity, :portionSize, :raceID, :basePrice, :slot
+  attributes :id, :groupID, :typeName, :description, :mass, :volume, :capacity, :portionSize, :raceID, :slot
 
   def slot
     @slot = InvTypes.find_by_sql("SELECT TRIM(effect.effectName) AS slot
