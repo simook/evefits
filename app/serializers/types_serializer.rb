@@ -13,4 +13,5 @@ class TypesSerializer < ActiveModel::Serializer
 
     @slot.nil? ? '' : @slot.slot
   end
+
 end

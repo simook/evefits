@@ -43,20 +43,11 @@ class FittingController < ApplicationController
   end
 
   def update
-    data = params[:fitting]
-
-    #@fitting = Fitting.new(data)
-    respond_to do |format|
-      format.json {render :json => params}
-    end
-  end
-
-  def module
     method = params[:method]
+    type = params[:type]
     data = Hash.new
     data[:fitting_id] = params[:id]
     data[:invTypes_id] = params[:module]
-
     if method === 'add'
       @module = ShipModule.new(data)
       respond_to do |format|

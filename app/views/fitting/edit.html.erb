@@ -48,7 +48,12 @@
               </ul>
               <!-- ko if: modules -->
                 <ul class="nav nav-list" data-bind="foreach: modules">
-                  <li><a href="#" data-bind="text:name, click: $root.addModule"></a></li>
+                  <!-- ko if: slotType() === 'module' -->
+                    <li><a href="#" data-bind="text:name, click: $root.addModule"></a></li>
+                  <!-- /ko -->
+                  <!-- ko if: slotType() === 'charge' -->
+                    <li><a href="#" data-bind="text:name, click: $root.addCharge"></a></li>
+                  <!-- /ko -->
                 </ul>
               <!-- /ko -->
             <!-- /ko -->
@@ -399,15 +404,17 @@
     <td data-bind="text: cpu"></td>
     <td data-bind="text: capacitorUse"></td>
     <td>
-      <span data-bind="formatDistance:{number:maxRange(),power:1000,precision:2}"></span>
+      <span data-bind="formatDistance:{number:optimalTotal(),power:1000,precision:1}"></span>
       <!-- ko if: maxRange() && falloff() -->
         <span class="muted">+</span>
       <!-- /ko -->
-      <span data-bind="formatDistance:{number:falloff(),power:1000,precision:2}"></span>
+      <span data-bind="formatDistance:{number:falloffTotal(),power:1000,precision:1}"></span>
     </td>
-    <td data-bind="formatNumber:{number:tracking(),precision:3}"></td>
+    <td data-bind="formatNumber:{number:trackingTotal(),precision:3}"></td>
     <td data-bind="formatCurrency:{number:price(), power:1000000, precision:2}"></td>
-    <td></td>
+    <td data-bind="with: charge">
+      <span data-bind="text:name"></span>
+    </td>
     <td>
       <button class="btn btn-mini" data-bind="click:$parent.removeModule"><i class="icon-remove"></i></button>
     </td>
@@ -431,7 +438,7 @@
 <script type="text/javascript">
   $(function() {
     var config = {
-      moduleFittingPath: '<%= module_fitting_path(params[:id]) %>',
+      updateFittingPath: '<%= fitting_path(params[:id]) %>',
       editFittingPath: '<%= edit_fitting_path(params[:id]) %>'
     };
     evefits.fittings.edit.init(config);

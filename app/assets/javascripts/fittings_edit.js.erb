@@ -12,6 +12,10 @@ window.evefits.extend({
 });
 
 evefits.fittings.edit = function(){
+  var _config = {
+    debug: true
+  };
+
   var _viewModel = function(){
     var self = this;
     self.config = ko.observable();
@@ -20,6 +24,7 @@ evefits.fittings.edit = function(){
     self.shipLoaded = ko.observable(false);
     self.modules = ko.observableArray();
     self.marketGroups = ko.observableArray();
+    self.chargeGroups = ko.observableArray();
     self.selectedMarketGroup = ko.observable();
     self.fittingLoaded = ko.observable(false);
     self.selectMarketGroup = function(element){
@@ -28,13 +33,32 @@ evefits.fittings.edit = function(){
     self.backMarketGroup = function(){
       self.selectedMarketGroup(false);
     };
-    self.addModule = function(module){
+    self.addModule = function(element){
       ko.utils.arrayFirst(self.ship().slots(), function(slot){
-        if(module.slot().toLowerCase() === slot.name().toLowerCase()){
+        if(element.slot().toLowerCase() === slot.name().toLowerCase()){
           if(slot.modules().length < slot.max()){
-            slot.addModule(module);
+            slot.addModule(element);
           }
         }
+      });
+    };
+    self.addCharge = function(element){
+      ko.utils.arrayForEach(self.ship().slots(), function(slot){
+        slot.addCharge(element);
+      });
+    };
+    self.importModule = function(element){
+      ko.utils.arrayFirst(self.ship().slots(), function(slot){
+        if(element.slot().toLowerCase() === slot.name().toLowerCase()){
+          if(slot.modules().length < slot.max()){
+            slot.addModule(element, false);
+          }
+        }
+      });
+    };
+    self.importCharge = function(element){
+      ko.utils.arrayForEach(self.ship().slots(), function(slot){
+        slot.addCharge(element, false);
       });
     };
   };
@@ -108,7 +132,9 @@ evefits.fittings.edit = function(){
     self.droneRange = ko.observable(0);
 
     /* Firepower attributes */
-    self.turretDps = ko.observable(0);
+    self.turretDps = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'dpsTotal');
+    });
     self.missleDps = ko.observable(0);
     self.droneDps = ko.observable(0);
     self.dps = ko.computed(function(){
@@ -288,6 +314,12 @@ evefits.fittings.edit = function(){
     self.hullExplosiveTotal = ko.computed(function(){
       return _trackModuleAttributes(self.modules(), 'hullExplosive');
     });
+    self.dpsTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'dps');
+    });
+    self.volleyTotal = ko.computed(function(){
+      return _trackModuleAttributes(self.modules(), 'volley');
+    });
 
     for (var i = 0; i < self.max(); i++) {
       self.slots.push(new _Module({
@@ -295,22 +327,65 @@ evefits.fittings.edit = function(){
         slotType: 'empty'
       }));
     }
-    self.addModule = function(module){
+    self.addModule = function(element, update){
+      var shouldUpdate = typeof update === "boolean" ? update : true;
       var freeSlot = ko.utils.arrayFirst(self.slots(), function(slot){
         return (slot.slotType() === 'empty');
       });
       if(freeSlot){
-        module.getAttributes();
-        self.slots.replace(freeSlot, module);
-        self.modules.push(module);
-        _saveFittingModule({method:'add',module:module.id()});
+        element.getAttributes();
+        self.slots.replace(freeSlot, element);
+        self.modules.push(element);
+        if(shouldUpdate){
+          _updateFitting({method:'add',module:element.id()});
+        }
       }
     };
     self.removeModule = function(module){
       var slot = new _Module({slotType:'empty',slot:self.name()});
       self.slots.replace(module, slot);
       self.modules.remove(module);
-      _saveFittingModule({method:'remove',module:module.id()});
+      _updateFitting({method:'remove',module:module.id()});
+    };
+    self.addCharge = function(element, update){
+      var shouldUpdate = typeof update === "boolean" ? update : true;
+      var _addChargeToModule = function(module){
+        if(element.volume() < module.capacity() &&
+          $.inArray(element.groupID(), module.chargeGroups()) != -1 &&
+          element.chargeSize() === module.chargeSize()){
+          if(module.charge()){
+            if(shouldUpdate){
+              _updateFitting({method:'remove',module:module.charge().id()});
+            }
+          }
+          if(shouldUpdate){
+            _updateFitting({method:'add',module:element.id()});
+          }
+          module.charge(element);
+        }
+      };
+      ko.utils.arrayForEach(self.modules(), function(module){
+        /* the module and charge must have all its attributes first */
+        if(!element.hasAttributes()){
+          element.getAttributes();
+        }
+        if(!module.hasAttributes()){
+          module.getAttributes();
+        }
+        if(module.hasAttributes() && element.hasAttributes()){
+          _addChargeToModule(module);
+        } else {
+          module.hasAttributes.subscribe(function(value){
+            if(value){
+              element.hasAttributes.subscribe(function(value2){
+                if(value2){
+                  _addChargeToModule(module);
+                }
+              });
+            }
+          });
+        }
+      });
     };
   };
 
@@ -339,16 +414,38 @@ evefits.fittings.edit = function(){
     self.powerGrid = ko.observable();
     self.cpu = ko.observable();
 
-    /* Targeting attributes */
-    self.maxRange = ko.observable();
-    self.falloff = ko.observable();
-    self.tracking = ko.observable();
-
     /* Charge attributes */
     self.charge = ko.observable();
     self.chargeSize = ko.observable();
-    self.chargeGroup = ko.observable();
+    self.chargeGroups = ko.observableArray();
+    self.chargeRate = ko.observable();
     self.reloadTime = ko.observable();
+
+    /* Targeting attributes */
+    self.maxRange = ko.observable(0);
+    self.optimalTotal = ko.computed(function(){
+      var range = self.maxRange();
+      if(self.charge() && self.charge().rangeMultiplier() > 0){
+        range = self.maxRange() * self.charge().rangeMultiplier();
+      }
+      return range;
+    });
+    self.falloff = ko.observable(0);
+    self.falloffTotal = ko.computed(function(){
+      var range = self.falloff();
+      if(self.charge() && self.charge().falloffMultiplier() > 0){
+        range = self.falloff() * self.charge().falloffMultiplier();
+      }
+      return range;
+    })
+    self.tracking = ko.observable(0);
+    self.trackingTotal = ko.computed(function(){
+      var tracking = self.tracking();
+      if(self.charge() && self.charge().speedMultiplier() > 0){
+        tracking = self.tracking() * self.charge().speedMultiplier();
+      }
+      return tracking;
+    })
 
     /* Fitting attributes */
     self.maxGroupActive = ko.observable();
@@ -386,6 +483,9 @@ evefits.fittings.edit = function(){
         if(capNeed === 0.0 && self.capacitorTransfer() != 0){
           capNeed = -self.capacitorTransfer();
         }
+        if(self.charge()){
+          capNeed = capNeed + capNeed * (self.charge().capBonus() / 100);
+        }
         //todo: check for cap boost & bonus
         if(capNeed != 0){
           return cycleTime != 0 ? -(capNeed / (cycleTime / 1000.0)).toFixed(2) : 0;
@@ -393,6 +493,26 @@ evefits.fittings.edit = function(){
           return 0;
         }
         return capNeed.toFixed(2);
+      } else {
+        return 0;
+      }
+    });
+
+    /* Firepower attributes */
+    self.damageMultiplier = ko.observable();
+    self.volley = ko.computed(function(){
+      if(self.enabled()){
+        return _baseDamageStats(self);
+      } else {
+        return 0;
+      }
+    });
+    self.dps = ko.computed(function(){
+      if(self.enabled()){
+        var speed = self.cycleTime();
+        if(speed > 0){
+          return _baseDamageStats(self) / (speed / 1000);
+        }
       } else {
         return 0;
       }
@@ -448,8 +568,52 @@ evefits.fittings.edit = function(){
     }
   };
 
-  var _Charge = function(){
+  var _Charge = function(args){
+    var self = this;
+    self.slot = ko.observable(args.hasOwnProperty('slot') ? args.slot : undefined);
+    self.slotType = ko.observable(args.hasOwnProperty('slotType') ? args.slotType : undefined);
+    self.icon = ko.observable();
+    self.attributes = ko.observableArray();
+    self.hasAttributes = ko.observable(false);
+    self.enabled = ko.observable(true);
 
+    /* Basic attributes */
+    self.id = ko.observable(args.hasOwnProperty('id') ? args.id : undefined);
+    self.groupID = ko.observable(args.hasOwnProperty('groupID') ? args.groupID : undefined);
+    self.name = ko.observable(args.hasOwnProperty('typeName') ? args.typeName : undefined);
+    self.mass = ko.observable(args.hasOwnProperty('mass') ? args.mass : undefined);
+    self.volume = ko.observable(args.hasOwnProperty('volume') ? args.volume : undefined);
+    self.capacity = ko.observable(args.hasOwnProperty('capacity') ? args.capacity : undefined);
+    self.description = ko.observable(args.hasOwnProperty('description') ? args.description : undefined);
+    self.price = ko.observable(args.hasOwnProperty('basePrice') ? args.basePrice : undefined);
+
+    /* Fitting attributes */
+    self.chargeSize = ko.observable(0);
+    self.launcherGroup = ko.observable();
+
+    /* Damage attributes */
+    self.em = ko.observable(0);
+    self.explosive = ko.observable(0);
+    self.kinetic = ko.observable(0);
+    self.thermal = ko.observable(0);
+
+    /* Tracking attributes */
+    self.rangeMultiplier = ko.observable(0);
+    self.speedMultiplier = ko.observable(0);
+    self.falloffMultiplier = ko.observable(0);
+
+    /* Misc attributes */
+    self.capBonus = ko.observable(0);
+
+    self.getAttributes = function(){
+      if(!self.hasAttributes()){
+        $.when(
+          _getChargeAttributes(self)
+        ).done(function(){
+          self.hasAttributes(true)
+        });
+      }
+    };
   };
 
   var _ScanType = function(args){
@@ -478,9 +642,8 @@ evefits.fittings.edit = function(){
           jsonpCallback: 'types'
         }).done(function(data){
           for (var i = 0; i < data.length; i++) {
-            var module = data[i];
-            module.slotType = 'module';
-            self.modules.push(new _Module(module));
+            var type = data[i];
+            self.modules.push(_validateType(type));
           }
         });
       }
@@ -579,6 +742,14 @@ evefits.fittings.edit = function(){
           args.maxGroupActive(attribute.value);
         } else if(attribute.name.toLowerCase() === 'maxgroupfitted'){
           args.maxGroupFitted(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'chargerate'){
+          args.chargeRate(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'chargesize'){
+          args.chargeSize(attribute.value);
+        } else if(attribute.name.match('^chargeGroup')){
+          args.chargeGroups.push(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'damagemultiplier' || attribute.name.toLowerCase() === 'missiledamagemultiplier'){
+          args.damageMultiplier(attribute.value);
         }
       };
       dfr.resolve();
@@ -689,6 +860,51 @@ evefits.fittings.edit = function(){
     return dfr.promise();
   };
 
+  /**
+  * Gets all the extended attributes for charges.
+  * @method _getChargeAttributes
+  * @async
+  * @params {object} args The charge constructor.
+  */
+  var _getChargeAttributes = function(args){
+    var dfr = $.Deferred();
+    $.ajax({
+      url: '<%= url.api_modules_path %>/'+args.id(),
+      dataType: 'json',
+      jsonpCallback: 'attributes'
+    }).done(function(data){
+      for (var i = 0; i < data.length; i++) {
+        var attribute = data[i];
+        args.attributes.push(new _Attribute(attribute));
+        if(attribute.name.toLowerCase() === 'emdamage'){
+          args.em(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'explosivedamage'){
+          args.explosive(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'kineticdamage'){
+          args.kinetic(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'thermaldamage'){
+          args.thermal(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'chargesize'){
+          args.chargeSize(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'launchergroup'){
+          args.launcherGroup(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'weaponrangemultiplier'){
+          args.rangeMultiplier(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'trackingspeedmultiplier'){
+          args.speedMultiplier(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'capneedbonus'){
+          args.capBonus(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'fallofmultiplier'){
+          args.falloffMultiplier(attribute.value);
+        }
+      };
+      dfr.resolve();
+    }).fail(function(data){
+      dfr.reject(data);
+    });
+    return dfr.promise();
+  };
+
   var _trackModuleAttributes = function(modules, attribute){
     var total = 0;
     ko.utils.arrayForEach(modules, function(module){
@@ -733,6 +949,20 @@ evefits.fittings.edit = function(){
     i = 0;
   };
 
+  var _baseDamageStats = function(args){
+    var damage = 0;
+    if(args.charge()){
+      damage += args.charge().em();
+      damage += args.charge().explosive();
+      damage += args.charge().kinetic();
+      damage += args.charge().thermal();
+    }
+    if(args.damageMultiplier() > 0){
+      damage = damage * args.damageMultiplier();
+    }
+    return damage;
+  };
+
   var _millisecondsToString = function(arg1){
     var seconds = arg1 / 1000,
     //numyears = Math.floor(seconds / 31536000),
@@ -743,26 +973,50 @@ evefits.fittings.edit = function(){
     return Math.round(numminutes) + "m " + Math.round(numseconds) + "s";
   }
 
-  var _saveFittingModule = function(args){
+  var _validateType = function(arg){
+    var type = arg;
+    if($.inArray(type.groupID, _edit.chargeGroups()) != -1){
+      /* charges */
+      type.slotType = 'charge';
+      var charge = new _Charge(type);
+      charge.getAttributes();
+      return charge;
+    } else {
+      /* modules */
+      type.slotType = 'module';
+      var module = new _Module(type);
+      return module;
+    }
+  };
+
+  var _updateFitting = function(args){
     if(!_edit.fittingLoaded()) {return false}
+    _debug('Update Fitting: '+ ko.toJSON(args));
     $.ajax({
-      url: _edit.config().moduleFittingPath,
-      type: 'POST',
+      url: _edit.config().updateFittingPath,
+      type: 'PUT',
       dataType: 'json',
       data: args
     });
   };
 
   var _importFitting = function(args){
+    _debug('Fitting: Importing the fitting.');
     var dfr = $.Deferred();
     var ship = new _Ship(args.ship);
     ship.getAttributes();
     ship.loaded.subscribe(function(value){
       if(value) {
+        _debug('Import Fitting: The ship has attributes.');
         $.when(
-          _importShipModules(args)
+          _importFittingModules(args)
         ).done(function(){
-          dfr.resolve();
+          $.when(
+            _importFittingCharges(args)
+          ).done(function(){
+            _debug('Import Fitting: All done importing.');
+            dfr.resolve()
+          });
         });
       }
     });
@@ -771,18 +1025,78 @@ evefits.fittings.edit = function(){
     return dfr.promise();
   };
 
-  var _importShipModules = function(args){
+  var _importFittingCharges = function(args){
+    _debug('Fitting Charges: Importing the fitting charges.');
     var dfr = $.Deferred();
+    /* Import charges */
     for (var i = 0; i < args.invTypes.length; i++) {
-      var module = args.invTypes[i];
-      module.slotType = 'module';
-      _edit.addModule(new _Module(module));
+      var type = _validateType(args.invTypes[i]);
+      if(type.slotType() === 'charge'){
+        type.getAttributes();
+        _edit.importCharge(type);
+      }
+      if(i === args.invTypes.length-1){
+        _debug('Fitting Charges: All done.');
+        dfr.resolve();
+      }
     }
-    dfr.resolve();
     return dfr.promise();
   };
 
-  var _loadEnviromentData = function(){
+  var _importFittingModules = function(args){
+    _debug('Fitting Modules: Importing the fitting modules.');
+    var dfr = $.Deferred();
+    for (var i = 0; i < args.invTypes.length; i++) {
+      var type = _validateType(args.invTypes[i]);
+      if(type.slotType() === 'module'){
+        type.getAttributes();
+        _edit.importModule(type);
+      }
+      if(i === args.invTypes.length-1){
+        _debug('Fitting Modules: All done.');
+        dfr.resolve();
+      }
+    }
+    return dfr.promise();
+  };
+
+  var _getChargeGroupIDs = function(){
+    _debug('Charge Group IDs: Getting the data, starting ajax call.');
+    var dfr = $.Deferred();
+    $.ajax({
+      url: '<%= url.api_charges_path %>',
+      dataType: 'json',
+      jsonpCallback: 'charges'
+    }).done(function(data){
+      _debug('Charge Group IDs: Importing the data.');
+      for (var i = 0; i < data.length; i++) {
+        var group = data[i];
+        _edit.chargeGroups.push(group.id);
+      };
+      dfr.resolve();
+    });
+    return dfr.promise();
+  };
+
+  var _getModules = function(){
+    _debug('Modules: Getting the data, starting ajax call.');
+    var dfr = $.Deferred();
+    $.ajax({
+      url: '<%= url.api_modules_path %>',
+      dataType: 'json',
+      jsonpCallback: 'modules'
+    }).done(function(data){
+      _debug('Modules: Importing the data');
+      for (var i = 0; i < data.length; i++) {
+        _edit.marketGroups.push(new _Group(data[i]));
+      }
+      dfr.resolve();
+    });
+    return dfr.promise();
+  };
+
+  var _getFitting = function(){
+    _debug('Get Fitting: Getting the data, starting ajax call.');
     $.ajax({
       url: _edit.config().editFittingPath,
       dataType: 'json',
@@ -791,19 +1105,26 @@ evefits.fittings.edit = function(){
       $.when(
         _importFitting(data)
       ).done(function(){
+        _debug('Get Fitting: All done.');
         _edit.fittingLoaded(true);
       });
     });
-    $.ajax({
-      url: '<%= url.api_modules_path %>',
-      dataType: 'json',
-      jsonpCallback: 'modules'
-    }).done(function(data){
-      for (var i = 0; i < data.length; i++) {
-        _edit.marketGroups.push(new _Group(data[i]));
-      }
-    });
   };
+
+  var _loadEnviromentData = function(){
+    $.when(
+      _getChargeGroupIDs()
+    ).done(function(){
+      _getFitting();
+      _getModules();
+    })
+  };
+
+  var _debug = function(arg){
+    if(_config.debug){
+      console.debug(arg);
+    }
+  }
 
   ko.bindingHandlers.progress = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {

@@ -6,11 +6,7 @@ Evefits::Application.routes.draw do
 
   resources :users
 
-  resources :fitting do
-    member do
-      post 'module'
-    end
-  end
+  resources :fitting
 
   namespace :api do
     resources :ships, :only => [:index, :show]
@@ -24,6 +20,7 @@ Evefits::Application.routes.draw do
         get 'marketstat'
       end
     end
+    resources :charges, :only => [:index]
   end
 
   root :to => "home#index"
