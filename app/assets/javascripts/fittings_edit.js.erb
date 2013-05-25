@@ -135,12 +135,18 @@ evefits.fittings.edit = function(){
     self.turretDps = ko.computed(function(){
       return _trackSlotTotalAttributes(self.slots(), 'dpsTotal');
     });
+    self.turretVolley = ko.computed(function(){
+      return _trackSlotTotalAttributes(self.slots(), 'volleyTotal');
+    });
     self.missleDps = ko.observable(0);
+    self.missleVolley = ko.observable(0);
     self.droneDps = ko.observable(0);
     self.dps = ko.computed(function(){
       return (self.turretDps() + self.missleDps() + self.droneDps());
     });
-    self.volley = ko.observable(0);
+    self.volley = ko.computed(function(){
+      return (self.turretVolley() + self.missleVolley());
+    });
 
     /* Resistance attributes */
     self.shieldHp = ko.observable(0);
@@ -441,8 +447,12 @@ evefits.fittings.edit = function(){
     self.tracking = ko.observable(0);
     self.trackingTotal = ko.computed(function(){
       var tracking = self.tracking();
+      var trackingModifiers = _trackingModifiers();
       if(self.charge() && self.charge().speedMultiplier() > 0){
         tracking = self.tracking() * self.charge().speedMultiplier();
+      }
+      if(trackingModifiers > 0){
+        tracking += self.tracking() * trackingModifiers;
       }
       return tracking;
     })
@@ -499,7 +509,8 @@ evefits.fittings.edit = function(){
     });
 
     /* Firepower attributes */
-    self.damageMultiplier = ko.observable();
+    self.damageMultiplier = ko.observable(0);
+    self.speedMultiplier = ko.observable(0);
     self.volley = ko.computed(function(){
       if(self.enabled()){
         return _baseDamageStats(self);
@@ -512,6 +523,8 @@ evefits.fittings.edit = function(){
         var speed = self.cycleTime();
         if(speed > 0){
           return _baseDamageStats(self) / (speed / 1000);
+        } else {
+          return 0;
         }
       } else {
         return 0;
@@ -678,6 +691,8 @@ evefits.fittings.edit = function(){
     self.stackable = ko.observable(args.attributes.stackable);
   };
 
+  var _
+
   /**
   * Gets all the extended attributes for modules.
   * @method _getModuleAttributes
@@ -750,6 +765,8 @@ evefits.fittings.edit = function(){
           args.chargeGroups.push(attribute.value);
         } else if(attribute.name.toLowerCase() === 'damagemultiplier' || attribute.name.toLowerCase() === 'missiledamagemultiplier'){
           args.damageMultiplier(attribute.value);
+        } else if(attribute.name.toLowerCase() === 'speedmultiplier'){
+          args.speedMultiplier(attribute.value);
         }
       };
       dfr.resolve();
@@ -924,7 +941,7 @@ evefits.fittings.edit = function(){
   var _trackSlotTotalAttributes = function(slots, attribute){
     var total = 0;
     ko.utils.arrayForEach(slots, function(slot){
-      total = (total + slot[attribute]());
+      total += slot[attribute]();
     });
     return total;
   };
@@ -951,16 +968,44 @@ evefits.fittings.edit = function(){
 
   var _baseDamageStats = function(args){
     var damage = 0;
+    var damageModifier = _dpsModifiers();
     if(args.charge()){
-      damage += args.charge().em();
-      damage += args.charge().explosive();
-      damage += args.charge().kinetic();
-      damage += args.charge().thermal();
+      var damageTypes = [args.charge().em(), args.charge().explosive(), args.charge().kinetic(), args.charge().thermal()];
+      for (var i = 0; i < damageTypes.length; i++) {
+        damage += damageTypes[i];
+      };
     }
-    if(args.damageMultiplier() > 0){
+    if(damage != 0 && args.damageMultiplier() > 0){
       damage = damage * args.damageMultiplier();
     }
+    if(damage != 0 && damageModifier > 0){
+      damage += damage * damageModifier;
+    }
     return damage;
+  };
+
+  var _dpsModifiers = function(){
+    var total = 0;
+    ko.utils.arrayForEach(_edit.ship().slots(), function(slot){
+      ko.utils.arrayForEach(slot.modules(), function(module){
+        if(module.enabled() && module.damageMultiplier() && !module.dps()){
+          total += module.damageMultiplier();
+        }
+      });
+    });
+    return total;
+  };
+
+  var _trackingModifiers = function(){
+    var total = 0;
+    ko.utils.arrayForEach(_edit.ship().slots(), function(slot){
+      ko.utils.arrayForEach(slot.modules(), function(module){
+        if(module.enabled() && module.damageMultiplier() && !module.dps()){
+          total += module.speedMultiplier();
+        }
+      });
+    });
+    return total;
   };
 
   var _millisecondsToString = function(arg1){

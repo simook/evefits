@@ -1,4 +1,6 @@
 Evefits::Application.routes.draw do
+  get "effects/show"
+
   authenticated :user do
     root :to => 'home#index'
   end
@@ -10,7 +12,7 @@ Evefits::Application.routes.draw do
 
   namespace :api do
     resources :ships, :only => [:index, :show]
-    resources :modules, :only => [:index, :show, :types] do
+    resources :modules do
       member do
         get 'types'
       end

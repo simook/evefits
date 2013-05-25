@@ -112,15 +112,15 @@
           <div class="box-header">
             <div class="title">Offense</div>
             <ul class="box-toolbar">
-              <li><span class="label"><span data-bind="text:dps"></span> dps</span></li>
-              <li><span class="label"><span data-bind="text:volley"></span> volley</span></li>
+              <li><span class="label"><span data-bind="formatNumber:{number:dps(), precision:1}"></span> dps</span></li>
+              <li><span class="label"><span data-bind="formatNumber:{number:volley(), precision:1}"></span> volley</span></li>
             </ul>
           </div>
           <div class="box-content padded">
             <div class="row-fluid">
               <div class="span4">
                 <img src="<%= asset_path('items/13_64_7.png') %>" class="pull-left margin-right" width="20px" />
-                <span data-bind="text:turretDps"></span> <small class="muted">dps</small>
+                <span data-bind="formatNumber:{number:turretDps(),precision:1}"></span> <small class="muted">dps</small>
               </div>
               <div class="span4">
                 <img src="<%= asset_path('items/56_64_5.png') %>" class="pull-left margin-right" width="20px" />
