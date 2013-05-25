@@ -1,21 +1,8 @@
 class AttributesSerializer < ActiveModel::Serializer
-  attributes :value, :name
-  attribute :attributeTypes, :key => 'attributes'
-  attribute :effects
+  attributes :attributeID, :attributeName, :defaultValue, :displayName, :stackable, :highIsGood, :categoryID, :description, :value
 
   def value
-    object.attributeValue
-  end
-
-  def name
-   DgmAttributeTypes.find(object.attributeId).attributeName
-  end
-
-  def attributeTypes
-    DgmAttributeTypes.find(object.attributeId)
-  end
-
-  def effects
-
+    @value = DgmAttributeType.find(object.attributeID).type_attributes.where(:typeID => url_options[:_path_segments][:id]).first
+    @value.valueFloat || @value.valueInt
   end
 end

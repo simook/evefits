@@ -679,16 +679,16 @@ evefits.fittings.edit = function(){
   */
   var _Attribute = function(args){
     var self = this;
-    self.name = ko.observable(args.name);
+    self.name = ko.observable(args.attributeName);
     self.value = ko.observable(args.value);
-    self.id = ko.observable(args.attributes.attributeID);
-    self.category = ko.observable(args.attributes.categoryID);
-    self.defaultValue = ko.observable(args.attributes.defaultValue);
-    self.description = ko.observable(args.attributes.description);
-    self.displayName = ko.observable(args.attributes.displayName);
-    self.highIsGood = ko.observable(args.attributes.highIsGood);
-    self.icon = ko.observable(args.attributes.iconID);
-    self.stackable = ko.observable(args.attributes.stackable);
+    self.defaultValue = ko.observable(args.defaultValue);
+    self.id = ko.observable(args.attributeID);
+    self.category = ko.observable(args.categoryID);
+    self.defaultValue = ko.observable(args.defaultValue);
+    self.description = ko.observable(args.description);
+    self.displayName = ko.observable(args.displayName);
+    self.highIsGood = ko.observable(args.highIsGood);
+    self.stackable = ko.observable(args.stackable);
   };
 
   var _
@@ -709,65 +709,7 @@ evefits.fittings.edit = function(){
       for (var i = 0; i < data.length; i++) {
         var attribute = data[i];
         args.attributes.push(new _Attribute(attribute));
-        if(attribute.name.toLowerCase() === 'cpu'){
-          args.cpu(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'power'){
-          args.powerGrid(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'capacitorneed'){
-          args.capacitor(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'maxrange'){
-          args.maxRange(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'falloff'){
-          args.falloff(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'trackingspeed'){
-          args.tracking(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'speed' || attribute.name.toLowerCase() === 'duration' || attribute.name.toLowerCase() === 'missilelaunchduration'){
-          args.speed(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'reloadtime'){
-          args.reloadTime(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'modulereactivationdelay'){
-          args.delay(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'powertransferamount'){
-          args.capacitorTransfer(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'shieldemdamageresonance'){
-          args.shieldEM(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'shieldexplosivedamageresonance'){
-          args.shieldExplosive(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'shieldkineticdamageresonance'){
-          args.shieldKinetic(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'shieldthermaldamageresonance'){
-          args.shieldThermal(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'armoremdamageresonance'){
-          args.armorEM(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'armorexplosivedamageresonance'){
-          args.armorExplosive(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'armorkineticdamageresonance'){
-          args.armorKinetic(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'armorthermaldamageresonance'){
-          args.armorThermal(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'hullkineticdamageresonance'){
-          args.hullKinetic(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'hullthermaldamageresonance'){
-          args.hullThermal(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'hullexplosivedamageresonance'){
-          args.hullExplosive(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'hullemdamageresonance'){
-          args.hullEM(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'maxgroupactive'){
-          args.maxGroupActive(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'maxgroupfitted'){
-          args.maxGroupFitted(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'chargerate'){
-          args.chargeRate(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'chargesize'){
-          args.chargeSize(attribute.value);
-        } else if(attribute.name.match('^chargeGroup')){
-          args.chargeGroups.push(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'damagemultiplier' || attribute.name.toLowerCase() === 'missiledamagemultiplier'){
-          args.damageMultiplier(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'speedmultiplier'){
-          args.speedMultiplier(attribute.value);
-        }
+        _processModuleAttributes(args, attribute);
       };
       dfr.resolve();
     }).fail(function(data){
@@ -792,89 +734,179 @@ evefits.fittings.edit = function(){
       for (var i = 0; i < data.length; i++) {
         var attribute = data[i];
         args.attributes.push(new _Attribute(attribute));
-        if(attribute.name.toLowerCase() === 'cpuoutput'){
-          args.cpu(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'poweroutput'){
-          args.powerGrid(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'capacitorcapacity'){
-          args.capacitor(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'rechargerate'){
-          args.rechargeRate(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'dronecapacity'){
-          args.droneBay(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'dronebandwidth'){
-          args.droneBandwidth(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'shieldcapacity'){
-          args.shieldHp(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'armorhp'){
-          args.armorHp(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'hp'){
-          args.hullHp(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'shieldemdamageresonance'){
-          args.shieldEM(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'shieldexplosivedamageresonance'){
-          args.shieldExplosive(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'shieldkineticdamageresonance'){
-          args.shieldKinetic(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'shieldthermaldamageresonance'){
-          args.shieldThermal(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'armoremdamageresonance'){
-          args.armorEM(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'armorexplosivedamageresonance'){
-          args.armorExplosive(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'armorkineticdamageresonance'){
-          args.armorKinetic(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'armorthermaldamageresonance'){
-          args.armorThermal(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'kineticdamageresonance'){
-          args.hullKinetic(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'thermaldamageresonance'){
-          args.hullThermal(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'explosivedamageresonance'){
-          args.hullExplosive(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'emdamageresonance'){
-          args.hullEM(_baseResistance(attribute.value));
-        } else if(attribute.name.toLowerCase() === 'maxvelocity'){
-          args.speed(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'agility'){
-          args.agility(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'maxtargetrange'){
-          args.range(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'launcherslotsleft'){
-          args.launchers(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'turretslotsleft'){
-          args.turrets(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'maxlockedtargets'){
-          args.targets(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'scanradarstrength'){
-          args.scanTypes.push(new _ScanType(attribute));
-        } else if(attribute.name.toLowerCase() === 'scanladarstrength'){
-          args.scanTypes.push(new _ScanType(attribute));
-        } else if(attribute.name.toLowerCase() === 'scanmagnetometricstrength'){
-          args.scanTypes.push(new _ScanType(attribute));
-        } else if(attribute.name.toLowerCase() === 'scangravimetricstrength'){
-          args.scanTypes.push(new _ScanType(attribute));
-        } else if(attribute.name.toLowerCase() === 'dronecapacity'){
-          args.droneBay(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'dronebandwidth'){
-          args.droneBandwidth(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'shieldrechargerate'){
-          args.shieldRecharge(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'signatureradius'){
-          args.signature(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'scanresolution'){
-          args.scanResolution(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'basewarpspeed'){
-          args.baseWarpSpeed(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'warpspeedmultiplier'){
-          args.baseWarpSpeedMultiplier(attribute.value);
-        }
-      }
+        _processShipAttributes(args, attribute);
+      };
       dfr.resolve();
     }).fail(function(data){
       dfr.reject(data);
     });
     return dfr.promise();
+  };
+
+  var _processShipAttributes = function(args, attribute){
+    if(attribute.attributeName.toLowerCase() === 'cpuoutput'){
+      args.cpu(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'poweroutput'){
+      args.powerGrid(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'capacitorcapacity'){
+      args.capacitor(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'rechargerate'){
+      args.rechargeRate(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'dronecapacity'){
+      args.droneBay(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'dronebandwidth'){
+      args.droneBandwidth(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'shieldcapacity'){
+      args.shieldHp(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'armorhp'){
+      args.armorHp(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'hp'){
+      args.hullHp(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'shieldemdamageresonance'){
+      args.shieldEM(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'shieldexplosivedamageresonance'){
+      args.shieldExplosive(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'shieldkineticdamageresonance'){
+      args.shieldKinetic(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'shieldthermaldamageresonance'){
+      args.shieldThermal(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'armoremdamageresonance'){
+      args.armorEM(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'armorexplosivedamageresonance'){
+      args.armorExplosive(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'armorkineticdamageresonance'){
+      args.armorKinetic(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'armorthermaldamageresonance'){
+      args.armorThermal(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'kineticdamageresonance'){
+      args.hullKinetic(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'thermaldamageresonance'){
+      args.hullThermal(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'explosivedamageresonance'){
+      args.hullExplosive(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'emdamageresonance'){
+      args.hullEM(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'maxvelocity'){
+      args.speed(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'agility'){
+      args.agility(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'maxtargetrange'){
+      args.range(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'launcherslotsleft'){
+      args.launchers(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'turretslotsleft'){
+      args.turrets(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'maxlockedtargets'){
+      args.targets(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'scanradarstrength'){
+      args.scanTypes.push(new _ScanType(attribute));
+    } else if(attribute.attributeName.toLowerCase() === 'scanladarstrength'){
+      args.scanTypes.push(new _ScanType(attribute));
+    } else if(attribute.attributeName.toLowerCase() === 'scanmagnetometricstrength'){
+      args.scanTypes.push(new _ScanType(attribute));
+    } else if(attribute.attributeName.toLowerCase() === 'scangravimetricstrength'){
+      args.scanTypes.push(new _ScanType(attribute));
+    } else if(attribute.attributeName.toLowerCase() === 'dronecapacity'){
+      args.droneBay(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'dronebandwidth'){
+      args.droneBandwidth(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'shieldrechargerate'){
+      args.shieldRecharge(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'signatureradius'){
+      args.signature(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'scanresolution'){
+      args.scanResolution(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'basewarpspeed'){
+      args.baseWarpSpeed(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'warpspeedmultiplier'){
+      args.baseWarpSpeedMultiplier(attribute.value);
+    }
+  };
+
+  var _processModuleAttributes = function(args, attribute){
+    if(attribute.attributeName.toLowerCase() === 'cpu'){
+      args.cpu(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'power'){
+      args.powerGrid(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'capacitorneed'){
+      args.capacitor(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'maxrange'){
+      args.maxRange(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'falloff'){
+      args.falloff(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'trackingspeed'){
+      args.tracking(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'speed' || attribute.attributeName.toLowerCase() === 'duration' || attribute.attributeName.toLowerCase() === 'missilelaunchduration'){
+      args.speed(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'reloadtime'){
+      args.reloadTime(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'modulereactivationdelay'){
+      args.delay(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'powertransferamount'){
+      args.capacitorTransfer(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'shieldemdamageresonance'){
+      args.shieldEM(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'shieldexplosivedamageresonance'){
+      args.shieldExplosive(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'shieldkineticdamageresonance'){
+      args.shieldKinetic(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'shieldthermaldamageresonance'){
+      args.shieldThermal(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'armoremdamageresonance'){
+      args.armorEM(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'armorexplosivedamageresonance'){
+      args.armorExplosive(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'armorkineticdamageresonance'){
+      args.armorKinetic(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'armorthermaldamageresonance'){
+      args.armorThermal(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'hullkineticdamageresonance'){
+      args.hullKinetic(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'hullthermaldamageresonance'){
+      args.hullThermal(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'hullexplosivedamageresonance'){
+      args.hullExplosive(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'hullemdamageresonance'){
+      args.hullEM(_baseResistance(attribute.value));
+    } else if(attribute.attributeName.toLowerCase() === 'maxgroupactive'){
+      args.maxGroupActive(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'maxgroupfitted'){
+      args.maxGroupFitted(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'chargerate'){
+      args.chargeRate(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'chargesize'){
+      args.chargeSize(attribute.value);
+    } else if(attribute.attributeName.match('^chargeGroup')){
+      args.chargeGroups.push(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'damagemultiplier' || attribute.attributeName.toLowerCase() === 'missiledamagemultiplier'){
+      args.damageMultiplier(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'speedmultiplier'){
+      args.speedMultiplier(attribute.value);
+    }
+  };
+
+  var _processChargeAttributes = function(args, attribute){
+    if(attribute.attributeName.toLowerCase() === 'emdamage'){
+      args.em(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'explosivedamage'){
+      args.explosive(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'kineticdamage'){
+      args.kinetic(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'thermaldamage'){
+      args.thermal(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'chargesize'){
+      args.chargeSize(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'launchergroup'){
+      args.launcherGroup(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'weaponrangemultiplier'){
+      args.rangeMultiplier(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'trackingspeedmultiplier'){
+      args.speedMultiplier(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'capneedbonus'){
+      args.capBonus(attribute.value);
+    } else if(attribute.attributeName.toLowerCase() === 'fallofmultiplier'){
+      args.falloffMultiplier(attribute.value);
+    }
   };
 
   /**
@@ -893,27 +925,7 @@ evefits.fittings.edit = function(){
       for (var i = 0; i < data.length; i++) {
         var attribute = data[i];
         args.attributes.push(new _Attribute(attribute));
-        if(attribute.name.toLowerCase() === 'emdamage'){
-          args.em(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'explosivedamage'){
-          args.explosive(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'kineticdamage'){
-          args.kinetic(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'thermaldamage'){
-          args.thermal(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'chargesize'){
-          args.chargeSize(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'launchergroup'){
-          args.launcherGroup(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'weaponrangemultiplier'){
-          args.rangeMultiplier(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'trackingspeedmultiplier'){
-          args.speedMultiplier(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'capneedbonus'){
-          args.capBonus(attribute.value);
-        } else if(attribute.name.toLowerCase() === 'fallofmultiplier'){
-          args.falloffMultiplier(attribute.value);
-        }
+        _processChargeAttributes(args, attribute);
       };
       dfr.resolve();
     }).fail(function(data){
@@ -1074,13 +1086,13 @@ evefits.fittings.edit = function(){
     _debug('Fitting Charges: Importing the fitting charges.');
     var dfr = $.Deferred();
     /* Import charges */
-    for (var i = 0; i < args.invTypes.length; i++) {
-      var type = _validateType(args.invTypes[i]);
+    for (var i = 0; i < args.types.length; i++) {
+      var type = _validateType(args.types[i]);
       if(type.slotType() === 'charge'){
         type.getAttributes();
         _edit.importCharge(type);
       }
-      if(i === args.invTypes.length-1){
+      if(i === args.types.length-1){
         _debug('Fitting Charges: All done.');
         dfr.resolve();
       }
@@ -1091,13 +1103,13 @@ evefits.fittings.edit = function(){
   var _importFittingModules = function(args){
     _debug('Fitting Modules: Importing the fitting modules.');
     var dfr = $.Deferred();
-    for (var i = 0; i < args.invTypes.length; i++) {
-      var type = _validateType(args.invTypes[i]);
+    for (var i = 0; i < args.types.length; i++) {
+      var type = _validateType(args.types[i]);
       if(type.slotType() === 'module'){
         type.getAttributes();
         _edit.importModule(type);
       }
-      if(i === args.invTypes.length-1){
+      if(i === args.types.length-1){
         _debug('Fitting Modules: All done.');
         dfr.resolve();
       }

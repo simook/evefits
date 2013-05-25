@@ -1,6 +1,6 @@
 class Api::ShipsController < ApplicationController
   def index
-    @ships = InvTypes.find_by_sql("SELECT
+    @ships = InvType.find_by_sql("SELECT
        t.*,
        g.groupName,
        r.raceName,
@@ -23,7 +23,7 @@ class Api::ShipsController < ApplicationController
   end
 
   def show
-    @ship = InvTypes.find_by_sql("SELECT
+    @ship = InvType.find_by_sql("SELECT
         attribtypes.attributename,
         coalesce(attrib.valueFloat, attrib.valueInt) as value
     FROM dgmTypeAttributes AS attrib

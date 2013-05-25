@@ -4,6 +4,6 @@ class ModulesSerializer < ActiveModel::Serializer
   has_many :groups, :serializer => ModulesSerializer
 
   def groups
-    InvMarketGroups.where(:parentGroupID => marketGroupID)
+    InvMarketGroup.where(:parentGroupID => marketGroupID)
   end
 end

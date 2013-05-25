@@ -2,10 +2,10 @@ class FittingSerializer < ActiveModel::Serializer
   self.root = false
   attributes :id, :name, :ship_id, :ship
 
-  has_many :invTypes, :serializer => TypesSerializer
+  has_many :types, :serializer => TypesSerializer
 
   def ship
-    InvTypes.find(ship_id)
+    InvType.find(object.ship_id)
   end
 
 end

@@ -2,7 +2,7 @@ class TypesSerializer < ActiveModel::Serializer
   attributes :id, :groupID, :typeName, :description, :mass, :volume, :capacity, :portionSize, :raceID, :slot
 
   def slot
-    @slot = InvTypes.find_by_sql("SELECT TRIM(effect.effectName) AS slot
+    @slot = InvType.find_by_sql("SELECT TRIM(effect.effectName) AS slot
     FROM invTypes AS type
          INNER JOIN dgmTypeEffects AS typeEffect
            ON type.typeID = typeEffect.typeID
