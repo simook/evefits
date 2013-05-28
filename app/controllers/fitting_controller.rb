@@ -32,7 +32,7 @@ class FittingController < ApplicationController
     @fitting = Fitting.new(data)
     respond_to do |format|
       if @fitting.save
-        format.html { redirect_to user_fitting_index_path(current_user) }
+        format.html { redirect_to edit_fitting_path(@fitting.id) }
       else
         format.html { render :action => "new" }
       end

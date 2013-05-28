@@ -1,21 +1,18 @@
-<%= render 'sidebar' %>
-<div class="main-content">
-  <div class="container-fluid">
-    <div class="row-fluid">
-      <div class="area-top clearfix">
-        <div class="pull-left header">
-          <h3 class="title" data-bind="text: header"></h3>
-        </div>
-        <div class="pull-right">
-          <%= link_to 'New', new_fitting_path, :class => 'btn btn-large btn-primary' %>
-        </div>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="area-top clearfix">
+      <div class="pull-left header">
+        <h3 class="title" data-bind="text: header"></h3>
+      </div>
+      <div class="pull-right">
+        <%= link_to 'New', new_fitting_path, :class => 'btn btn-large btn-primary' %>
       </div>
     </div>
   </div>
-  <div class="container-fluid padded">
-    <div class="row-fluid">
-      <ul class="thumbnails" data-bind="template:{name:'fitting',foreach:fittings}"></ul>
-      </div>
+</div>
+<div class="container-fluid padded">
+  <div class="row-fluid">
+    <ul class="thumbnails" data-bind="template:{name:'fitting',foreach:fittings}"></ul>
     </div>
   </div>
 </div>

@@ -1,0 +1,5 @@
+<%= simple_form_for @character, :url => url_for(:action => 'create', :controller => 'characters'), :method => 'post' do |f| %>
+  <%= f.input :apikey, label: 'API Key' %>
+  <%= f.input :apicode, label: 'API Code' %>
+  <%= f.button :submit, :class => 'btn-primary', :value => 'Add Character' %>
+<% end %>

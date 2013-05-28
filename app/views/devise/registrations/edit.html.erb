@@ -1,14 +1,129 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
-<%= simple_form_for(resource, :as => resource_name, :url => registration_path(resource_name), :html => { :method => :put, :class => 'form-vertical' }) do |f| %>
-  <%= f.error_notification %>
-  <%= display_base_errors resource %>
-  <%= f.input :name, :autofocus => true %>
-  <%= f.input :email, :required => true %>
-  <%= f.input :password, :autocomplete => "off", :hint => "leave it blank if you don't want to change it", :required => false %>
-  <%= f.input :password_confirmation, :required => false %>
-  <%= f.input :current_password, :hint => "we need your current password to confirm your changes", :required => true %>
-  <%= f.button :submit, 'Update', :class => 'btn-primary' %>
-<% end %>
-<h3>Cancel my account</h3>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="area-top clearfix">
+      <div class="pull-left header">
+        <h3 class="title">Your Account</h3>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <ul class="breadcrumb">
+    <li><%= link_to 'Home', root_path %><span class="divider">/</span></li>
+    <li class="active">New</li>
+  </ul>
+</div>
+<div class="container-fluid padded">
+  <div class="row-fluid">
+    <div class="span6">
+      <div class="box">
+        <div class="box-header">
+          <div class="title">Account Settings</div>
+        </div>
+        <div class="box-content padded">
+          <%= simple_form_for(resource, :as => resource_name, :url => registration_path(resource_name), :html => { :method => :put, :class => 'form-vertical' }) do |f| %>
+            <%= f.error_notification %>
+            <%= display_base_errors resource %>
+            <%= f.input :name, :autofocus => true %>
+            <%= f.input :email, :required => true %>
+            <%= f.input :password, :autocomplete => "off", :hint => "leave it blank if you don't want to change it", :required => false %>
+            <%= f.input :password_confirmation, :required => false %>
+            <%= f.input :current_password, :hint => "we need your current password to confirm your changes", :required => true %>
+            <%= f.button :submit, 'Update', :class => 'btn-primary' %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="span6">
+      <div class="row-fluid">
+        <div class="box">
+          <div class="box-header">
+            <div class="title">Account Characters</div>
+            <ul class="box-toolbar">
+              <li><button class="btn btn-mini" data-bind="wizard:{id:'add-character'}">Add Characters</button></li>
+            </ul>
+          </div>
+          <div class="box-content padded">
+            <ul class="thumbnails" data-bind="template:{name:'character', foreach: characters}"></ul>
+          </div>
+        </div>
+      </div>
+      <h3>Cancel my account</h3>
 <p>Unhappy? <%= link_to "Cancel my account", registration_path(resource_name), :data => { :confirm => "Are you sure?" }, :method => :delete %>.</p>
-<%= link_to "Back", :back %>
+    </div>
+  </div>
+</div>
+<div class="wizard" id="add-character">
+    <h1>Add Characters</h1>
+    <div class="wizard-card" data-cardname="eveapi" data-validate="true">
+      <h3>Setup EVE API</h3>
+      <div class="control-group integer optional character_apikey">
+        <label class="integer optional control-label" for="character_apikey">Key ID</label>
+        <div class="controls">
+          <input class="span5 integer required" type="text" id="apikeyid"/>
+        </div>
+      </div>
+      <div class="control-group string optional character_apicode">
+        <label class="string optional control-label" for="character_apicode">Verification Code</label>
+        <div class="controls">
+          <input class="span5 string required" id="apivcode" size="50" type="text"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <a href="http://community.eveonline.com/support/api-key/" target="_blank" class="btn btn-mini">Login to EVE Online</a>
+      </div>
+    </div>
+    <div class="wizard-card" data-cardname="card2">
+        <h3>Select Characters</h3>
+        <!-- ko if: loadingCharacters -->
+          <p>Loading your characters...</p>
+        <!-- /ko -->
+        <ul class="thumbnails" data-bind="template:{name:'import-character', foreach: importCharacters}"></ul>
+    </div>
+    <div class="wizard-success">
+        <h3>You're characters have been addded</h3>
+    </div>
+
+    <div class="wizard-error">
+        <h3>Shit, something broke</h3>
+        <blockquote>
+          <p>It is possible to commit no errors and still lose. That is not a weakness. That is life.</p>
+          <small>Captain Picard</small>
+        </blockquote>
+        <p>Please try again.</p>
+    </div>
+</div>
+<script type="text/html" id="import-character">
+  <li class="span5  ">
+    <a class="thumbnail row-fluid" href="#" data-bind="css: selected() ? 'selected':'', click:select">
+      <div class="span2">
+        <img data-bind="attr:{src:avatar}" class="img-rounded" />
+      </div>
+      <div class="span10">
+        <!-- ko if: selected -->
+        <span class="label label-inverse pull-right">Selected</span>
+        <!-- /ko -->
+        <h4 data-bind="text:characterName"></h4>
+        <small data-bind="text:corporationName"></small>
+      </div>
+    </a>
+  </li>
+</script>
+<script type="text/html" id="character">
+  <li class="span6">
+    <a class="thumbnail row-fluid" href="#">
+      <div class="span2">
+        <img data-bind="attr:{src:avatar}" class="img-rounded" />
+      </div>
+      <div class="span10">
+        <h4 data-bind="text:characterName"></h4>
+        <small data-bind="text:corporationName"></small>
+      </div>
+    </a>
+  </li>
+</script>
+<script type="text/javascript">
+  $(function() {
+    evefits.user.characters.init();
+  });
+</script>

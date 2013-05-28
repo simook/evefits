@@ -11,7 +11,23 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130520003209) do
+ActiveRecord::Schema.define(:version => 20130525204044) do
+
+  create_table "characters", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "characterName"
+    t.integer  "characterID"
+    t.integer  "corporationID"
+    t.string   "corporationName"
+    t.integer  "apikey"
+    t.string   "apicode"
+    t.datetime "expires"
+    t.integer  "accessMask"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "characters", ["user_id"], :name => "index_characters_on_user_id"
 
   create_table "chrRaces", :primary_key => "raceID", :force => true do |t|
     t.string  "raceName",         :limit => 100

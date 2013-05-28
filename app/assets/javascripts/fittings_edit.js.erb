@@ -702,7 +702,7 @@ evefits.fittings.edit = function(){
   var _getModuleAttributes = function(args){
     var dfr = $.Deferred();
     $.ajax({
-      url: '<%= url.api_modules_path %>/'+args.id(),
+      url: '<%= url.api_modules_path %>/'+args.id()+'/attributes',
       dataType: 'json',
       jsonpCallback: 'attributes'
     }).done(function(data){
@@ -727,7 +727,7 @@ evefits.fittings.edit = function(){
   var _getShipAttributes = function(args){
     var dfr = $.Deferred();
     $.ajax({
-      url: '<%= url.api_modules_path %>/'+args.id(),
+      url: '<%= url.api_modules_path %>/'+args.id()+'/attributes',
       dataType: 'json',
       jsonpCallback: 'attributes'
     }).done(function(data){
@@ -918,7 +918,7 @@ evefits.fittings.edit = function(){
   var _getChargeAttributes = function(args){
     var dfr = $.Deferred();
     $.ajax({
-      url: '<%= url.api_modules_path %>/'+args.id(),
+      url: '<%= url.api_modules_path %>/'+args.id()+'/attributes',
       dataType: 'json',
       jsonpCallback: 'attributes'
     }).done(function(data){
