@@ -7,7 +7,7 @@
         </div>
         <div class="box-content padded">
           <%= simple_form_for(resource, :as => resource_name, :url => session_path(resource_name), :html => {:class => 'form-horizontal' }) do |f| %>
-            <%= f.input :email, :autofocus => true %>
+            <%= f.input :login, :autofocus => true %>
             <%= f.input :password %>
             <%= f.input :remember_me, :as => :boolean if devise_mapping.rememberable? %>
             <%= f.button :submit, "Sign in", :class => 'btn-primary pull-right' %>
@@ -20,6 +20,3 @@
     </div>
   </div>
 </div>
-<script type="text/javascript">
-  evefits.ships.init();
-</script>

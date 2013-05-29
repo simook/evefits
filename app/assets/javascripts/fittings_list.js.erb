@@ -30,7 +30,7 @@ evefits.fittings.list = function(){
     self.shipId = ko.observable(args.ship_id);
     self.ship = ko.observable(args.ship);
     self.url = ko.computed(function(){
-      return window.location.href+'/'+args.id+'/edit';
+      return window.location.origin+'/fitting/'+args.id+'/edit';
     });
     self.image = ko.computed(function(){
       return window.location.origin+'/assets/ships/'+self.shipId()+'.png';

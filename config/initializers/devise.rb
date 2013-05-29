@@ -23,7 +23,7 @@ Devise.setup do |config|
   # session. If you need permissions, you should implement that in a before filter.
   # You can also supply a hash where the value is a boolean determining whether
   # or not authentication should be aborted when the value is not present.
-  # config.authentication_keys = [ :email ]
+  config.authentication_keys = [ :login ]
 
   # Configure parameters from the request object used for authentication. Each entry
   # given should be a request method and it will automatically be passed to the
@@ -86,7 +86,7 @@ Devise.setup do |config|
   config.stretches = Rails.env.test? ? 1 : 10
 
   # Setup a pepper to generate the encrypted password.
-  # config.pepper = "216a3152b90f7c5dbaafa126e241dc163d1730ca0f15bfd4b952e14bcfd9ff30b50bb042b897c50cab4b9a386325f45a33ceaf3c7f41376987275d27c105f11f"
+  config.pepper = "216a3152b90f7c5dbaafa126e241dc163d1730ca0f15bfd4b952e14bcfd9ff30b50bb042b897c50cab4b9a386325f45a33ceaf3c7f41376987275d27c105f11f"
 
   # ==> Configuration for :confirmable
   # A period that the user is allowed to access the website even without
@@ -115,7 +115,7 @@ Devise.setup do |config|
 
   # ==> Configuration for :rememberable
   # The time the user will be remembered without asking for credentials again.
-  # config.remember_for = 2.weeks
+  config.remember_for = 2.weeks
 
   # If true, extends the user's remember period when remembered via cookie.
   # config.extend_remember_period = false

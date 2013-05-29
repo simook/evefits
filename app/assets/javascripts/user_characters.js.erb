@@ -1,0 +1,135 @@
+<% url = Rails.application.routes.url_helpers %>
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  user: {
+    characters: {}
+  }
+});
+
+evefits.user.characters = function(){
+  var _viewModel = function(){
+    var self = this;
+    self.characters = ko.observableArray();
+    self.importCharacters = ko.observableArray();
+    self.loadingCharacters = ko.observable(true);
+  };
+
+  var _getCharacters = function(){
+    $.ajax({
+      url: '<%= url.characters_path %>',
+      dataType: 'json',
+      type: 'GET'
+    }).done(function(data){
+      _edit.characters.removeAll();
+      for (var i = 0; i < data.length; i++) {
+       _edit.characters.push(new _Character(data[i]));
+      };
+    });
+  };
+
+  var _Character = function(args){
+    var self = this;
+    self.characterName = ko.observable(args.characterName);
+    self.corporationName = ko.observable(args.corporationName);
+    self.characterID = ko.observable(args.characterID);
+    self.corporationID = ko.observable(args.corporationID);
+    self.apikey = ko.observable();
+    self.apicode = ko.observable();
+    self.expires = ko.observable();
+    self.accessMask = ko.observable();
+    self.selected = ko.observable(true);
+    self.avatar = ko.computed(function(){
+      return "http://image.eveonline.com/character/"+self.characterID()+"_64.jpg";
+    });
+    self.select = function(){
+      if(self.selected()){
+        self.selected(false);
+      } else {
+        self.selected(true);
+      }
+    };
+  };
+
+  ko.bindingHandlers.wizard = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var options = valueAccessor();
+      var wizard = $('#'+options.id).wizard(options.options);
+
+      $(element).on('click', function(){
+        wizard.show();
+      });
+
+      wizard.cards["eveapi"].on("validate", function(card) {
+        var keyid = card.el.find("#apikeyid").val(),
+        vcode = card.el.find("#apivcode").val();
+        if(keyid === ""){
+          return false;
+        }
+        if(vcode === ""){
+          return false;
+        }
+        if(keyid && vcode){
+          _edit.loadingCharacters(true);
+          $.ajax({
+            url: '<%= url.verify_api_eaal_index_path %>',
+            dataType: 'json',
+            type: 'POST',
+            data: {id:keyid, code:vcode}
+          }).done(function(data){
+            if(data.status === 'ok'){
+              _edit.loadingCharacters(false);
+              if(data.key.accessMask < '8'){
+                //todo
+              } else {
+                _edit.importCharacters.removeAll();
+                for (var i = 0; i < data.characters.length; i++) {
+                 var character = new _Character(data.characters[i]);
+                 character.apikey(keyid).apicode(vcode).expires(data.key.expires).accessMask(data.key.accessMask);
+                  _edit.importCharacters.push(character);
+                }
+              }
+            }
+          });
+        }
+      });
+      wizard.on("submit", function(wizard){
+        var characters = ko.toJSON(_edit.importCharacters());
+        $.ajax({
+          url: '<%= url.characters_path %>',
+          dataType: 'json',
+          type: 'POST',
+          data: {characters: characters}
+        }).done(function(data){
+          if(data.status === 'created'){
+            wizard.submitSuccess();
+            wizard.hideButtons();
+            _getCharacters();
+          } else {
+            wizard.submitError();
+            wizard.hideButtons();
+          }
+        }).error(function(){
+          wizard.submitError();
+          wizard.hideButtons();
+        });
+      });
+    }
+  };
+
+  var _edit = new _viewModel();
+
+  var _init = function(){
+    ko.applyBindings(_edit);
+    _getCharacters();
+  };
+
+  return {
+    init: _init,
+    viewModel: _edit
+  };
+}();

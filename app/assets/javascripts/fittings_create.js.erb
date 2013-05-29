@@ -41,13 +41,20 @@ evefits.fittings.create = function(){
     self.image = ko.computed(function(){
       return window.location.origin+'/assets/ships/'+self.id()+'.png';
     });
+    self.raceIcon = ko.computed(function(){
+      return window.location.origin+'/assets/items/'+self.race().toLowerCase()+'.png';
+    })
   };
 
-  var _create = new _viewModel();
+  var _sortByName = function(a,b){
+    return a.name() == b.name() ? 0 : (a.name() < b.name() ? -1 : 1)
+  };
 
-  var _init = function(){
-    ko.applyBindings(_create);
+  var _sortByRace = function(a,b){
+    return a.race() == b.race() ? 0 : (a.race() < b.race() ? -1 : 1)
+  };
 
+  var _getShips = function(){
     $.ajax({
       url: '<%= url.api_ships_path %>',
       dataType: 'json',
@@ -62,11 +69,22 @@ evefits.fittings.create = function(){
           var group = new _Group(ship.group());
           group.ships.push(ship);
           _create.groups.push(group);
+          //create.groups.sort(_sortByRace);
         } else {
           groupExist.ships.push(ship);
+          groupExist.ships.sort(_sortByRace);
         }
       }
+      _create.groups.sort(_sortByName);
+      $('#ships a:first').tab('show');
     });
+  };
+
+  var _create = new _viewModel();
+
+  var _init = function(){
+    ko.applyBindings(_create);
+    _getShips();
   };
 
   return {init:_init}
