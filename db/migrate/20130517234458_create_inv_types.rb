@@ -15,6 +15,6 @@ class CreateInvTypes < ActiveRecord::Migration
       t.float   "chanceOfDuplicating"
     end
 
-    add_index "invtypes", ["groupID"], :name => "invTypes_IX_Group"
+    add_index "invTypes", ["groupID"], :name => "invTypes_IX_Group"
   end
 end
