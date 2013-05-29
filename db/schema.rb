@@ -101,7 +101,15 @@ ActiveRecord::Schema.define(:version => 20130528172903) do
 
   add_index "fittings", ["user_id"], :name => "index_fittings_on_user_id"
 
-  create_table "invGroups", :primary_key => "groupID", :force => true do |t|
+  create_table "invMarketGroups", :primary_key => "marketGroupID", :force => true do |t|
+    t.integer "parentGroupID"
+    t.string  "marketGroupName", :limit => 100
+    t.string  "description",     :limit => 3000
+    t.integer "iconID"
+    t.integer "hasTypes"
+  end
+
+  create_table "invgroups", :primary_key => "groupID", :force => true do |t|
     t.integer "categoryID"
     t.string  "groupName",            :limit => 100
     t.string  "description",          :limit => 3000
@@ -117,15 +125,7 @@ ActiveRecord::Schema.define(:version => 20130528172903) do
 
   add_index "invgroups", ["categoryID"], :name => "invGroups_IX_category"
 
-  create_table "invMarketGroups", :primary_key => "marketGroupID", :force => true do |t|
-    t.integer "parentGroupID"
-    t.string  "marketGroupName", :limit => 100
-    t.string  "description",     :limit => 3000
-    t.integer "iconID"
-    t.integer "hasTypes"
-  end
-
-  create_table "invTypes", :primary_key => "typeID", :force => true do |t|
+  create_table "invtypes", :primary_key => "typeID", :force => true do |t|
     t.integer "groupID"
     t.string  "typeName",            :limit => 100
     t.string  "description",         :limit => 3000
