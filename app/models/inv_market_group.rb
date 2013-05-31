@@ -1,6 +1,6 @@
 class InvMarketGroup < ActiveRecord::Base
   self.primary_key = :marketGroupID
-  self.table_name = :InvMarketGroups
+  self.table_name = :invMarketGroups
 
   belongs_to :parent_group, :foreign_key => :parentGroupID, :class_name => :InvMarketGroup
   has_many :market_groups, :foreign_key => :parentGroupID, :class_name => :InvMarketGroup
