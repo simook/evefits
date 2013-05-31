@@ -1,5 +1,5 @@
 class DgmTypeEffect < ActiveRecord::Base
-  self.primary_keys = [:typeID, :effectID]
+  self.primary_keys = :typeID, :effectID
   self.table_name = :dgmTypeEffects
 
   belongs_to :type, :foreign_key => :typeID, :class_name => :InvType
