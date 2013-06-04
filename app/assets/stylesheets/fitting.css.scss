@@ -16,3 +16,25 @@
     min-height: 20px;
   }
 }
+.thumbnails {
+  &.ships {
+    li {
+      margin: 0 0 10px 0;
+      &:first-child{
+        margin: inherit;
+      }
+      .description {
+        margin: 5px 0 0 0;
+        display: none;
+        //background: rgba(255,255,255,.8);
+        white-space: pre-wrap;
+        color: #78808a;
+      }
+      .selected {
+        .description {
+          display: block;
+        }
+      }
+    }
+  }
+}

@@ -11,14 +11,11 @@ end
 
 module Evefits
   class Application < Rails::Application
+    config.cache_store = :redis_store, "redis://localhost:6379/0/cache", { expires_in: 1.hour }
 
     # don't generate RSpec tests for views and helpers
     config.generators do |g|
       g.test_framework :rspec
-      
-      
-      
-      
       g.view_specs false
       g.helper_specs false
     end

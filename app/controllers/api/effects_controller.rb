@@ -1,4 +1,5 @@
 class Api::EffectsController < ApplicationController
+
   def show
    @effects = InvGroup.where(:categoryID => 8, :published => 1)
 

@@ -1,4 +1,18 @@
+require 'open-uri'
+require 'nokogiri'
+
 class Api::SkillsController < ApplicationController
+  def index
+    @skill_tree = Rails.cache.fetch("skills_tree", :expires_in => 1.day) do
+      @xml = Nokogiri::XML(open('https://api.eveonline.com/eve/SkillTree.xml.aspx'))
+      Hash.from_xml(@xml.to_xml).to_json
+    end
+
+    respond_to do |format|
+      format.json {render :json => @skill_tree, :callback => params[:callback], :root => false }
+    end
+  end
+
   def show
     @skills = invTypes.find_by_sql("SELECT dgmTypeAttributes.typeID,
       dgmAttributeTypes.attributeName,
@@ -25,26 +39,3 @@ class Api::SkillsController < ApplicationController
     end
   end
 end
-
-#SELECT dgmtypeattributes.typeID,
-# dgmattributetypes.attributeName,
-# dgmattributetypes.attributeID,
-# dgmtypeattributes.valueInt,
-# dgmtypeattributes.valueFloat,
-# invtypes.groupID,
-# invtypes.typeName,
-# invtypes.raceID,
-# chrraces.raceName,
-# IF (dgmtypeattributes.valueInt > '1000', invtypes_1.typeName, NULL ) AS SkillName,
-# IF (dgmtypeattributes.valueFloat > '1000', invtypes_1.typeName, NULL ) AS SkillName2
-#FROM dgmattributetypes
-#INNER JOIN dgmtypeattributes ON dgmattributetypes.attributeID = dgmtypeattributes.attributeID
-#INNER JOIN invtypes ON dgmtypeattributes.typeID = invtypes.typeID
-#INNER JOIN chrraces ON invtypes.raceID = chrraces.raceID
-#LEFT JOIN invtypes AS invtypes_1 ON COALESCE(dgmtypeattributes.valueInt, dgmtypeattributes.valueFloat) = invtypes_1.typeID
-#LEFT JOIN invgroups ON invtypes.groupID = invgroups.groupID
-#WHERE invgroups.categoryID = '6'
-#AND dgmattributetypes.attributeID IN (182,183,184,277,278,279)
-#AND invtypes.published =1
-#AND invtypes.typeName = 'Drake'
-#ORDER BY chrraces.raceName, invtypes.typeName, dgmattributetypes.attributeName;

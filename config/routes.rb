@@ -8,6 +8,7 @@ Evefits::Application.routes.draw do
   resources :fitting
   namespace :api do
     resources :ships, :only => [:index, :show]
+    resources :skills, :only => :index
     resources :modules do
       member do
         get 'types'

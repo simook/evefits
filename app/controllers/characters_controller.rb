@@ -7,6 +7,10 @@ class CharactersController < ApplicationController
     end
   end
 
+  def new
+   @character = Character.new
+  end
+
   def show
   end
 
@@ -29,11 +33,5 @@ class CharactersController < ApplicationController
         format.json { render :json => {:status => 'error'}}
       end
     end
-  end
-
-  def new
-   @character = Character.new
-
-   render :layout => false
   end
 end

@@ -1,6 +1,6 @@
 class FittingController < ApplicationController
   def index
-    @fittings = User.find(current_user).fittings.all
+    @fittings = current_user.fittings.all
 
     respond_to do |format|
       format.json {render :json => @fittings, :callback => params[:callback] }

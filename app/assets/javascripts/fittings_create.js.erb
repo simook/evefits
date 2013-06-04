@@ -15,9 +15,24 @@ evefits.fittings.create = function(){
   var _viewModel = function(){
     var self = this;
     self.groups = ko.observableArray();
+    self.ships = ko.observableArray();
     self.selectedShip = ko.observable();
     self.selectShip = function(element){
       self.selectedShip(element);
+    };
+    self.search = ko.observable();
+    self.searchShips = function(){
+      $('#ships li').each(function(){
+        var ship = ko.utils.arrayFirst(ko.dataFor(this).ships(), function(ship){
+          return (ship.name().toLowerCase() === self.search().toLowerCase());
+        });
+        if(ship){
+          var $tab = $('a',this);
+          $tab.tab('show');
+          self.selectedShip(ship);
+          _scrollToElement($tab.attr('href'),ship);
+        }
+      });
     };
   };
 
@@ -39,7 +54,7 @@ evefits.fittings.create = function(){
     self.race = ko.observable(args.raceName);
     self.basePrice = ko.observable(args.basePrice);
     self.image = ko.computed(function(){
-      return window.location.origin+'/assets/ships/'+self.id()+'.png';
+      return 'http://image.eveonline.com/Render/'+self.id()+'_64.png';
     });
     self.raceIcon = ko.computed(function(){
       return window.location.origin+'/assets/items/'+self.race().toLowerCase()+'.png';
@@ -74,10 +89,37 @@ evefits.fittings.create = function(){
           groupExist.ships.push(ship);
           groupExist.ships.sort(_sortByRace);
         }
+        _create.ships.push(ship.name());
       }
       _create.groups.sort(_sortByName);
       $('#ships a:first').tab('show');
     });
+  };
+
+  var _scrollToElement = function(tab,ship){
+    $('.ships li',tab).each(function(){
+      if(ko.dataFor(this) === ship){
+        $('html, body').animate({scrollTop: $(this).offset().top - 100}, 2000);
+      }
+    });
+  };
+
+  ko.bindingHandlers.eveHtml = {
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+      var text = ko.utils.unwrapObservable(valueAccessor());
+      $(element).html(text);
+
+      $('font',element).each(function(){
+        $(this).replaceWith($(this).text());
+      });
+    }
+  };
+
+  ko.bindingHandlers.typeahead = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
+      var options = valueAccessor();
+      $(element).typeahead(options);
+    }
   };
 
   var _create = new _viewModel();

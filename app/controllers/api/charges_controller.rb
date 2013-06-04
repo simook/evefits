@@ -1,4 +1,6 @@
 class Api::ChargesController < ApplicationController
+  caches_action :index
+
   def index
     @charges = InvGroup.where(:categoryID => 8, :published => 1)
 
@@ -7,6 +9,4 @@ class Api::ChargesController < ApplicationController
     end
   end
 
-  def show
-  end
 end

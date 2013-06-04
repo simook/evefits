@@ -1,6 +1,7 @@
 class Api::ShipsController < ApplicationController
   def index
-    @ships = InvType.find_by_sql("SELECT
+    @ships = Rails.cache.fetch("all_ships_index", :expires_in => 1.day) do
+      InvType.find_by_sql("SELECT
        t.*,
        g.groupName,
        r.raceName,
@@ -16,6 +17,7 @@ class Api::ShipsController < ApplicationController
       g.categoryID = 6 AND t.published = 1
     ORDER BY
       t.typeName ASC")
+    end
 
     respond_to do |format|
       format.json { render :json => @ships, :callback => params[:callback], :each_serializer => ShipSerializer }
@@ -23,7 +25,8 @@ class Api::ShipsController < ApplicationController
   end
 
   def show
-    @ship = InvType.find_by_sql("SELECT
+    @ship = Rails.cache.fetch("ship_#{params[:id]}", :expires_in => 1.day) do
+      InvType.find_by_sql("SELECT
         attribtypes.attributename,
         coalesce(attrib.valueFloat, attrib.valueInt) as value
     FROM dgmTypeAttributes AS attrib
@@ -33,7 +36,9 @@ class Api::ShipsController < ApplicationController
           ON attrib.attributeID = attribtypes.attributeID
     WHERE attribtypes.attributename IN ('lowSlots', 'medSlots', 'hiSlots', 'rigSlots',
         'maxSubSystems', 'lowSlotModifier','medSlotModifier','hiSlotModifier')
-    AND type.typeID = #{params[:id]};");
+    AND type.typeID = #{params[:id]};")
+    end
+
     respond_to do |format|
       format.json { render :json => @ship, :callback => params[:callback], :root => false }
     end

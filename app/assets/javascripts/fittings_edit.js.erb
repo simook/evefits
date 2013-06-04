@@ -241,7 +241,7 @@ evefits.fittings.edit = function(){
     });
 
     self.image = ko.computed(function(){
-      return window.location.origin+'/assets/ships/'+self.id()+'.png';
+      return 'http://image.eveonline.com/Render/'+self.id()+'_32.png';
     });
     self.getAttributes = function(){
       if(self.attributes().length === 0){
