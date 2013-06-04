@@ -115,6 +115,12 @@
         <img data-bind="attr:{src:avatar}" class="img-rounded" />
       </div>
       <div class="span10">
+        <!-- ko if: $root.defaultCharacter() === $data -->
+          <button class="pull-right btn btn-mini btn-success disabled" data-bind="click: makeDefault">Default</button>
+        <!-- /ko -->
+        <!-- ko ifnot: $root.defaultCharacter() === $data -->
+          <button class="pull-right btn btn-mini" data-bind="click: makeDefault">Make Default</button>
+        <!-- /ko -->
         <h4 data-bind="text:characterName"></h4>
         <small data-bind="text:corporationName"></small>
       </div>

@@ -21,6 +21,9 @@ a {
 .container-fluid {
   padding: 0px;
 }
+.section {
+  margin-top: 60px;
+}
 .area-top {
   background: #ececec;
   @include background(linear-gradient(top,#fafafa,#ececec));

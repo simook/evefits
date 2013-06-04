@@ -2,24 +2,40 @@
   <div class="span8 offset2">
     <div class="padded">
       <h3>Welcome to Iffy Fits!</h3>
-      <p class="lead">To get the most accurate fittings, we suggest adding your EVE Characters to Iffy Fits. This will allow us to import all your current skills for each character added.</p>
-      <div class="well row-fluid">
-        <!-- ko if: characters().length === 0 -->
-        <div class="span6">
-          <p>Adding your characters will only take a minute.</p>
+      <p class="lead">To achieve the best fittings, we suggest adding your EVE Characters to Iffy Fits. This will allow us to import all your current skills for each character.</p>
+      <div class="well">
+          <div class="row-fluid">
+          <!-- ko if: characters().length === 0 -->
+          <div class="span6">
+            <h5 class="muted">Adding your characters will only take a minute.</h5>
+          </div>
+          <div class="span6">
+            <button class="btn btn-large btn-primary btn-block" data-bind="wizard:{id:'add-character'}">Lets get started!</button>
+          </div>
+          <!-- /ko -->
+          <!-- ko if: characters().length > 0 -->
+          <div class="span8">
+            <h4>Nice work! </h4>
+          </div>
+          <div class="span4">
+            <%= link_to 'Continue', fitting_index_path, :class => 'btn btn-large btn-success btn-block' %>
+          </div>
+          <!-- /ko -->
         </div>
-        <div class="span6">
-          <button class="btn btn-large btn-primary btn-block" data-bind="wizard:{id:'add-character'}">Lets get started!</button>
-        </div>
-        <!-- /ko -->
-        <!-- ko if: characters().length > 0 -->
-        <div class="span8">
-          <h4>Nice work! </h4>
-        </div>
-        <div class="span4">
-          <%= link_to 'Continue', fitting_index_path, :class => 'btn btn-large btn-success btn-block' %>
-        </div>
-        <!-- /ko -->
+      </div>
+      <div class="row-fluid section">
+        <hr>
+        <h5>What is an API Key?</h5>
+        <p>The API key is a private code that identifies your account and allows third party programs and web sites to access information about your characters and corporations. Using this data, such utilities can improve your EVE experience by providing useful functionality such as wallet exports, skill training notifications, and other tools.</p>
+        <h5>Is this safe? Can someone steal my account?</h5>
+        <p>It is safe to provide your API key to applications and web sites as long as you are prepared to allow the application or web site to see your character and corporation information. You can specify which information is accessible for each customizable API key.</p>
+        <p>Sharing an API key does NOT give people access to your account while sharing your account password would. Therein lies the whole purpose of API keys. An API key only allows the recipient to view your character and corporation data but gives them NO control over it. They are NOT able to log in to the game or post on the forums with the API information. No part of the API key information is in any way generated from your account password - there is no way to calculate your password using this information.</p>
+        <p>This is the only safe way to give programs and web sites access to your data. Do not give out your account username or password to any person, program, or web site. Please keep in mind that doing so is a violation of the EULA and can lead to account termination.</p>
+        <h5>I still don't like it.</h5>
+        <p>If you are not certain that the web site or program asking for your API key is safe, please do not give it to them! You are responsible for any usage of the information obtained by using your API keys.</p>
+        <h5>I gave someone my API key and now I want them to stop using it!</h5>
+        <p>If you believe that someone is misusing your API key, you can delete it from the list above or simply change the Verification Code. Please note that all programs and web sites that are using your old API key information will no longer be able to access your data unless you provide them with the updated info or a new API key.</p>
+        <p>You can view API activity on your account by using the API Access Log. If you believe someone is misusing one of your API keys, please change the Verification Code or delete the API key from the list above.</p>
       </div>
     </div>
   </div>

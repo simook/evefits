@@ -18,6 +18,8 @@ class User < ActiveRecord::Base
 
   has_many :fittings
   has_many :characters
+  has_one :default_character
+  has_one :character, :through => :default_character
 
   def self.find_first_by_auth_conditions(warden_conditions)
     conditions = warden_conditions.dup

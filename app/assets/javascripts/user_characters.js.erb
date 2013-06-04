@@ -17,6 +17,7 @@ evefits.user.characters = function(){
     self.characters = ko.observableArray();
     self.importCharacters = ko.observableArray();
     self.loadingCharacters = ko.observable(true);
+    self.defaultCharacter = ko.observable();
   };
 
   var _getCharacters = function(){
@@ -32,6 +33,21 @@ evefits.user.characters = function(){
     });
   };
 
+  var _defaultCharacter = function(){
+    $.ajax({
+      url: '<%= url.default_characters_path %>',
+      dataType: 'json',
+      type: 'GET'
+    }).done(function(data){
+      _edit.defaultCharacter(false);
+      ko.utils.arrayFirst(_edit.characters(), function(character){
+        if(character.characterID() === data.characterID){
+          _edit.defaultCharacter(character);
+        }
+      });
+    });
+  };
+
   var _Character = function(args){
     var self = this;
     self.characterName = ko.observable(args.characterName);
@@ -43,6 +59,7 @@ evefits.user.characters = function(){
     self.expires = ko.observable();
     self.accessMask = ko.observable();
     self.selected = ko.observable(true);
+    self.defaultCharacter = ko.observable(false);
     self.avatar = ko.computed(function(){
       return "http://image.eveonline.com/character/"+self.characterID()+"_64.jpg";
     });
@@ -52,6 +69,18 @@ evefits.user.characters = function(){
       } else {
         self.selected(true);
       }
+    };
+    self.makeDefault = function(){
+      $.ajax({
+        url: '<%= url.characters_path %>/'+self.characterID()+'/set_default',
+        dataType: 'json',
+        type: 'POST'
+      }).done(function(data){
+        if(data.status && data.status === 'ok'){
+          _edit.defaultCharacter(self);
+          _defaultCharacter();
+        }
+      });
     };
   };
 
@@ -123,9 +152,14 @@ evefits.user.characters = function(){
 
   var _edit = new _viewModel();
 
-  var _init = function(){
-    ko.applyBindings(_edit);
+  var _init = function(args){
+    if(args && args.id){
+      ko.applyBindings(_edit, document.getElementById(args.id));
+    } else {
+      ko.applyBindings(_edit);
+    }
     _getCharacters();
+    _defaultCharacter();
   };
 
   return {

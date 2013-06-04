@@ -4,7 +4,14 @@ Evefits::Application.routes.draw do
   end
   devise_for :users
   resources :users
-  resources :characters
+  resources :characters do
+    member do
+      post 'set_default'
+    end
+    collection do
+      get 'default'
+    end
+  end
   resources :fitting
   namespace :api do
     resources :ships, :only => [:index, :show]

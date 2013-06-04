@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130528172903) do
+ActiveRecord::Schema.define(:version => 20130604190718) do
 
   create_table "characters", :force => true do |t|
     t.integer  "user_id"
@@ -36,6 +36,16 @@ ActiveRecord::Schema.define(:version => 20130528172903) do
     t.string  "shortDescription", :limit => 500
   end
 
+  create_table "default_characters", :force => true do |t|
+    t.integer  "character_id"
+    t.integer  "user_id"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "default_characters", ["character_id"], :name => "index_default_characters_on_character_id"
+  add_index "default_characters", ["user_id"], :name => "index_default_characters_on_user_id"
+
   create_table "dgmAttributeTypes", :primary_key => "attributeID", :force => true do |t|
     t.string  "attributeName", :limit => 100
     t.string  "description",   :limit => 1000
@@ -51,7 +61,7 @@ ActiveRecord::Schema.define(:version => 20130528172903) do
 
   create_table "dgmEffects", :primary_key => "effectID", :force => true do |t|
     t.string  "effectName",                     :limit => 400
-    t.integer "effectCategory",                 :limit => 2
+    t.integer "effectCategory"
     t.integer "preExpression"
     t.integer "postExpression"
     t.string  "description",                    :limit => 1000
@@ -59,11 +69,11 @@ ActiveRecord::Schema.define(:version => 20130528172903) do
     t.integer "iconID"
     t.integer "isOffensive"
     t.integer "isAssistance"
-    t.integer "durationAttributeID",            :limit => 2
-    t.integer "trackingSpeedAttributeID",       :limit => 2
-    t.integer "dischargeAttributeID",           :limit => 2
-    t.integer "rangeAttributeID",               :limit => 2
-    t.integer "falloffAttributeID",             :limit => 2
+    t.integer "durationAttributeID"
+    t.integer "trackingSpeedAttributeID"
+    t.integer "dischargeAttributeID"
+    t.integer "rangeAttributeID"
+    t.integer "falloffAttributeID"
     t.integer "disallowAutoRepeat"
     t.integer "published"
     t.string  "displayName",                    :limit => 100
@@ -73,21 +83,21 @@ ActiveRecord::Schema.define(:version => 20130528172903) do
     t.integer "propulsionChance"
     t.integer "distribution"
     t.string  "sfxName",                        :limit => 20
-    t.integer "npcUsageChanceAttributeID",      :limit => 2
-    t.integer "npcActivationChanceAttributeID", :limit => 2
-    t.integer "fittingUsageChanceAttributeID",  :limit => 2
+    t.integer "npcUsageChanceAttributeID"
+    t.integer "npcActivationChanceAttributeID"
+    t.integer "fittingUsageChanceAttributeID"
   end
 
   create_table "dgmTypeAttributes", :id => false, :force => true do |t|
-    t.integer "typeID",                   :null => false
-    t.integer "attributeID", :limit => 2, :null => false
+    t.integer "typeID",      :null => false
+    t.integer "attributeID", :null => false
     t.integer "valueInt"
     t.float   "valueFloat"
   end
 
   create_table "dgmTypeEffects", :id => false, :force => true do |t|
-    t.integer "typeID",                 :null => false
-    t.integer "effectID",  :limit => 2, :null => false
+    t.integer "typeID",    :null => false
+    t.integer "effectID",  :null => false
     t.integer "isDefault"
   end
 
@@ -101,15 +111,7 @@ ActiveRecord::Schema.define(:version => 20130528172903) do
 
   add_index "fittings", ["user_id"], :name => "index_fittings_on_user_id"
 
-  create_table "invMarketGroups", :primary_key => "marketGroupID", :force => true do |t|
-    t.integer "parentGroupID"
-    t.string  "marketGroupName", :limit => 100
-    t.string  "description",     :limit => 3000
-    t.integer "iconID"
-    t.integer "hasTypes"
-  end
-
-  create_table "invgroups", :primary_key => "groupID", :force => true do |t|
+  create_table "invGroups", :primary_key => "groupID", :force => true do |t|
     t.integer "categoryID"
     t.string  "groupName",            :limit => 100
     t.string  "description",          :limit => 3000
@@ -125,7 +127,15 @@ ActiveRecord::Schema.define(:version => 20130528172903) do
 
   add_index "invgroups", ["categoryID"], :name => "invGroups_IX_category"
 
-  create_table "invtypes", :primary_key => "typeID", :force => true do |t|
+  create_table "invMarketGroups", :primary_key => "marketGroupID", :force => true do |t|
+    t.integer "parentGroupID"
+    t.string  "marketGroupName", :limit => 100
+    t.string  "description",     :limit => 3000
+    t.integer "iconID"
+    t.integer "hasTypes"
+  end
+
+  create_table "invTypes", :primary_key => "typeID", :force => true do |t|
     t.integer "groupID"
     t.string  "typeName",            :limit => 100
     t.string  "description",         :limit => 3000

@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     #request.env['omniauth.origin'] || stored_location_for(resource) || root_path
-    if resource.sign_in_count <= 3
+    if resource.sign_in_count <= 3 and resource.character.nil?
       #lets guide the user to add characters
       new_character_path
     else
