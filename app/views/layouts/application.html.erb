@@ -10,7 +10,7 @@
     <%= yield(:head) %>
   </head>
   <body>
-    <div class="navbar navbar-top navbar-inverse">
+    <div class="navbar navbar-top navbar-inverse" id="nav">
       <div class="navbar-inner">
         <div class="container-fluid">
           <%= link_to root_path, :class => 'brand' do %>
@@ -22,6 +22,15 @@
         </div>
       </div>
     </div>
-    <%= yield %>
+    <div id="app">
+      <%= yield %>
+    </div>
+    <% if user_signed_in? %>
+      <script type="text/javascript">
+        $(function() {
+          evefits.navbar.init();
+        });
+      </script>
+    <% end %>
   </body>
 </html>

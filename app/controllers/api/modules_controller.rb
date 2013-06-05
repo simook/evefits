@@ -1,7 +1,9 @@
 class Api::ModulesController < ApplicationController
 
   def index
-    @modules = InvMarketGroup.where(:marketGroupID => [11,157,24,1111,9,1112]).all
+    @modules = Rails.cache.fetch("modules_index", :expires_in => 1.day) do
+      InvMarketGroup.where(:marketGroupID => [11,157,24,1111,9,1112]).all
+    end
 
     respond_to do |format|
       format.json { render :json => @modules, :callback => params[:callback], :root => false, :each_serializer => ModulesSerializer }
@@ -29,7 +31,9 @@ class Api::ModulesController < ApplicationController
   end
 
   def attributes
-    @attributes = InvType.find(params[:id]).Attributes.where(:published => 1)
+    @attributes = Rails.cache.fetch("module_type_#{params[:id]}_attributes", :expires_in => 1.hour) do
+      InvType.find(params[:id]).Attributes.where(:published => 1).all
+    end
 
     respond_to do |format|
       format.json { render :json => @attributes, :callback => params[:callback], :root => false, :each_serializer => AttributesSerializer }

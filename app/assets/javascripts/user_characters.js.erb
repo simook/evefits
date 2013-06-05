@@ -59,7 +59,6 @@ evefits.user.characters = function(){
     self.expires = ko.observable();
     self.accessMask = ko.observable();
     self.selected = ko.observable(true);
-    self.defaultCharacter = ko.observable(false);
     self.avatar = ko.computed(function(){
       return "http://image.eveonline.com/character/"+self.characterID()+"_64.jpg";
     });
@@ -153,11 +152,7 @@ evefits.user.characters = function(){
   var _edit = new _viewModel();
 
   var _init = function(args){
-    if(args && args.id){
-      ko.applyBindings(_edit, document.getElementById(args.id));
-    } else {
-      ko.applyBindings(_edit);
-    }
+    ko.applyBindings(_edit, document.getElementById("app"));
     _getCharacters();
     _defaultCharacter();
   };

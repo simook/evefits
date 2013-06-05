@@ -1,0 +1,79 @@
+<% url = Rails.application.routes.url_helpers %>
+if (typeof window.evefits !== 'object') {
+  window.evefits = {
+    extend: function(options) { return $.extend(true, window.evefits, options) }
+  };
+}
+
+window.evefits.extend({
+  navbar: {}
+});
+
+evefits.navbar = function(){
+  var _viewModel = function(){
+    var self = this;
+    self.characters = ko.observableArray();
+    self.defaultCharacter = ko.observable();
+  };
+
+  var _Character = function(args){
+    var self = this;
+    self.characterName = ko.observable(args.characterName);
+    self.corporationName = ko.observable(args.corporationName);
+    self.characterID = ko.observable(args.characterID);
+    self.corporationID = ko.observable(args.corporationID);
+    self.avatar = ko.computed(function(){
+      return "http://image.eveonline.com/character/"+self.characterID()+"_128.jpg";
+    });
+    self.makeDefault = function(){
+      $.ajax({
+        url: '<%= url.characters_path %>/'+self.characterID()+'/set_default',
+        dataType: 'json',
+        type: 'POST'
+      }).done(function(data){
+        if(data.status && data.status === 'ok'){
+          _nav.defaultCharacter(self);
+          _defaultCharacter();
+        }
+      });
+    };
+  };
+
+  var _getCharacters = function(){
+    $.ajax({
+      url: '<%= url.characters_path %>',
+      dataType: 'json',
+      type: 'GET'
+    }).done(function(data){
+      _nav.characters.removeAll();
+      for (var i = 0; i < data.length; i++) {
+       _nav.characters.push(new _Character(data[i]));
+      };
+    });
+  };
+
+  var _defaultCharacter = function(){
+    $.ajax({
+      url: '<%= url.default_characters_path %>',
+      dataType: 'json',
+      type: 'GET'
+    }).done(function(data){
+      _nav.defaultCharacter(false);
+      ko.utils.arrayFirst(_nav.characters(), function(character){
+        if(character.characterID() === data.characterID){
+          _nav.defaultCharacter(character);
+        }
+      });
+    });
+  };
+
+  var _init = function(args){
+    ko.applyBindings(_nav, document.getElementById("nav"));
+    _getCharacters();
+    _defaultCharacter();
+  };
+
+  var _nav = new _viewModel();
+
+  return {init:_init};
+}();

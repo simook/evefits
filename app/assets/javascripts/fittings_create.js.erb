@@ -125,7 +125,7 @@ evefits.fittings.create = function(){
   var _create = new _viewModel();
 
   var _init = function(){
-    ko.applyBindings(_create);
+    ko.applyBindings(_create, document.getElementById("app"));
     _getShips();
   };
 

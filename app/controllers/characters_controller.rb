@@ -41,7 +41,6 @@ class CharactersController < ApplicationController
     data.each do |char|
       char.delete "selected"
       char.delete "avatar"
-      char.delete "defaultCharacter"
       char["user_id"] = current_user.id
     end
 

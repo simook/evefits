@@ -1,28 +1,63 @@
 <% if user_signed_in? %>
-<ul class="nav full pull-right" id="user-nav">
+<ul class="nav full pull-right">
   <li class="dropdown user-avatar">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-        <%# <img class="menu-avatar" src="../../images/avatars/avatar1.jpg" /> %>
-        <span><%= current_user.username %> <span class="caret"></span></span>
+    <!-- ko if: defaultCharacter -->
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-bind="with: defaultCharacter">
+        <img class="menu-avatar" data-bind="attr:{src:avatar}" />
+        <span data-bind="text:characterName"></span> <span class="caret"></span>
         <%# <span class="badge badge-important">5</span> %>
-    </a>
+      </a>
+    <!-- /ko -->
+    <!-- ko ifnot: defaultCharacter -->
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <span><%= current_user.username %></span> <span class="caret"></span>
+      </a>
+    <!-- /ko -->
     <ul class="dropdown-menu">
-      <%# <li class="with-image">
-        #  <div class="avatar">
-        #    <img src="../../images/avatars/avatar1.jpg" />
-        #  </div>
-        #  <span></span>
-        #</li>
-        #<li class="divider"></li>
-        %>
+      <!-- ko if: defaultCharacter -->
+        <li class="with-image" data-bind="with: defaultCharacter">
+          <div class="avatar">
+            <img data-bind="attr:{src:avatar}" />
+          </div>
+          <span data-bind="text:characterName"></span>
+        </li>
+        <li class="divider"></li>
+        <li class="dropdown-submenu">
+          <a href="#">Switch Characters</a>
+          <ul class="dropdown-menu">
+          </ul>
+        </li>
+        <li class="divider"></li>
+        <li><h5><%= current_user.username %></h5></li>
+      <!-- /ko -->
       <li><%= link_to 'Account', edit_user_registration_path %></li>
       <li><%= link_to 'Characters', edit_user_registration_path %></li>
-      <%# <li><a href="#"><i class="icon-envelope"></i> <span>Messages</span> <span class="label label-dark-red pull-right">5</span></a></li> %>
       <% if current_user.has_role? :admin %>
       <li><%= link_to 'Admin', users_path %></li>
       <% end %>
       <li><%= link_to 'Logout', destroy_user_session_path, :method=>'delete' %></li>
     </ul>
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <span><%= current_user.username %> <span class="caret"></span></span>
+      </a>
+      <ul class="dropdown-menu">
+        <%# <li class="with-image">
+          #  <div class="avatar">
+          #    <img src="../../images/avatars/avatar1.jpg" />
+          #  </div>
+          #  <span></span>
+          #</li>
+          #<li class="divider"></li>
+          %>
+        <li><%= link_to 'Account', edit_user_registration_path %></li>
+        <li><%= link_to 'Characters', edit_user_registration_path %></li>
+        <%# <li><a href="#"><i class="icon-envelope"></i> <span>Messages</span> <span class="label label-dark-red pull-right">5</span></a></li> %>
+        <% if current_user.has_role? :admin %>
+        <li><%= link_to 'Admin', users_path %></li>
+        <% end %>
+        <li><%= link_to 'Logout', destroy_user_session_path, :method=>'delete' %></li>
+      </ul>
+    <% end %>
   </li>
 </ul>
 <ul class="nav pull-right">

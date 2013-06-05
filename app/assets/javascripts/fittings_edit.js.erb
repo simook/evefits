@@ -1282,7 +1282,7 @@ evefits.fittings.edit = function(){
   var _edit = new _viewModel();
 
   var _init = function(args){
-    ko.applyBindings(_edit);
+    ko.applyBindings(_edit, document.getElementById("app"));
     _edit.config(args);
     _loadEnviromentData();
   };

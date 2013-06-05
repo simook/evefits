@@ -37,12 +37,7 @@ evefits.fittings.list = function(){
     });
   };
 
-
-  var _list = new _viewModel();
-
-  var _init = function(){
-    ko.applyBindings(_list);
-
+  var _getFittings = function(){
     $.ajax({
       url: window.document.location,
       dataType: 'json',
@@ -52,6 +47,14 @@ evefits.fittings.list = function(){
         _list.fittings.push(new _Fitting(data.fitting[i]));
       }
     });
+  };
+
+
+  var _list = new _viewModel();
+
+  var _init = function(){
+    ko.applyBindings(_list, document.getElementById("app"));
+    _getFittings();
   };
 
   return {init:_init}
