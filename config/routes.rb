@@ -35,6 +35,10 @@ Evefits::Application.routes.draw do
       end
     end
   end
-
+  resources :skills do
+    member do
+      get 'import'
+    end
+  end
   root :to => "home#index"
 end

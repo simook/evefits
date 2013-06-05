@@ -338,10 +338,18 @@ evefits.fittings.edit = function(){
       var freeSlot = ko.utils.arrayFirst(self.slots(), function(slot){
         return (slot.slotType() === 'empty');
       });
+      var duplicateModule = ko.utils.arrayFirst(self.modules(), function(module){
+        return (element.id() === module.id());
+      });
       if(freeSlot){
-        element.getAttributes();
-        self.slots.replace(freeSlot, element);
-        self.modules.push(element);
+        if(duplicateModule){
+          self.slots.replace(freeSlot, duplicateModule);
+          self.modules.push(duplicateModule);
+        } else {
+          element.getAttributes();
+          self.slots.replace(freeSlot, element);
+          self.modules.push(element);
+        }
         if(shouldUpdate){
           _updateFitting({method:'add',module:element.id()});
         }
@@ -365,7 +373,7 @@ evefits.fittings.edit = function(){
             }
           }
           if(shouldUpdate){
-            _updateFitting({method:'add',module:element.id()});
+              _updateFitting({method:'add',module:element.id()});
           }
           module.charge(element);
         }
@@ -378,19 +386,11 @@ evefits.fittings.edit = function(){
         if(!module.hasAttributes()){
           module.getAttributes();
         }
-        if(module.hasAttributes() && element.hasAttributes()){
-          _addChargeToModule(module);
-        } else {
-          module.hasAttributes.subscribe(function(value){
-            if(value){
-              element.hasAttributes.subscribe(function(value2){
-                if(value2){
-                  _addChargeToModule(module);
-                }
-              });
-            }
-          });
-        }
+        ko.computed(function(){
+          if(module.hasAttributes() && element.hasAttributes()){
+            _addChargeToModule(module)
+          }
+        });
       });
     };
   };
@@ -417,15 +417,15 @@ evefits.fittings.edit = function(){
     self.price = ko.observable(args.hasOwnProperty('basePrice') ? args.basePrice : undefined);
 
     /* Powergrid & cpu attributes */
-    self.powerGrid = ko.observable();
-    self.cpu = ko.observable();
+    self.powerGrid = ko.observable(0);
+    self.cpu = ko.observable(0);
 
     /* Charge attributes */
     self.charge = ko.observable();
     self.chargeSize = ko.observable();
     self.chargeGroups = ko.observableArray();
-    self.chargeRate = ko.observable();
-    self.reloadTime = ko.observable();
+    self.chargeRate = ko.observable(0);
+    self.reloadTime = ko.observable(0);
 
     /* Targeting attributes */
     self.maxRange = ko.observable(0);
@@ -459,7 +459,7 @@ evefits.fittings.edit = function(){
 
     /* Fitting attributes */
     self.maxGroupActive = ko.observable();
-    self.maxGroupFitted = ko.observable()
+    self.maxGroupFitted = ko.observable();
 
     /* Resistance attributes */
     self.shieldEM = ko.observable(0);
@@ -709,9 +709,15 @@ evefits.fittings.edit = function(){
       for (var i = 0; i < data.length; i++) {
         var attribute = data[i];
         args.attributes.push(new _Attribute(attribute));
-        _processModuleAttributes(args, attribute);
+        try {
+          _processModuleAttributes(args, attribute);
+        } catch (e) {
+          _debug(e);
+        }
+        if(i+1 === data.length){
+          dfr.resolve();
+        }
       };
-      dfr.resolve();
     }).fail(function(data){
       dfr.reject(data);
     });
@@ -1097,6 +1103,9 @@ evefits.fittings.edit = function(){
         dfr.resolve();
       }
     }
+    if(args.types.length === 0){
+      dfr.resolve()
+    }
     return dfr.promise();
   };
 
@@ -1113,6 +1122,9 @@ evefits.fittings.edit = function(){
         _debug('Fitting Modules: All done.');
         dfr.resolve();
       }
+    }
+    if(args.types.length === 0){
+      dfr.resolve();
     }
     return dfr.promise();
   };
@@ -1164,11 +1176,17 @@ evefits.fittings.edit = function(){
       ).done(function(){
         _debug('Get Fitting: All done.');
         _edit.fittingLoaded(true);
+        setTimeout(function(){
+          $('#app').removeClass('loading');
+          evefits.navbar.spinner.stop();
+        },1000);
       });
     });
   };
 
   var _loadEnviromentData = function(){
+    $('#app').addClass('loading');
+    evefits.navbar.spinner.start();
     $.when(
       _getChargeGroupIDs()
     ).done(function(){

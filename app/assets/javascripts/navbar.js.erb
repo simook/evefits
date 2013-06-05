@@ -14,6 +14,7 @@ evefits.navbar = function(){
     var self = this;
     self.characters = ko.observableArray();
     self.defaultCharacter = ko.observable();
+    self.loading = ko.observable();
   };
 
   var _Character = function(args){
@@ -36,6 +37,46 @@ evefits.navbar = function(){
           _defaultCharacter();
         }
       });
+    };
+    self.updateSkills = function(){
+      var _value = 1;
+      var _notice = $.pnotify({
+        title: "Updateing skills for "+self.characterName(),
+        text: "<div class=\"progress progress-striped active\" ><div class=\"bar\"></div></div> ",
+        type: 'info',
+        icon: 'picon picon-throbber',
+        history: false,
+        hide: false,
+        width: '400px',
+        before_open: function(pnotify) {
+          var bar = pnotify.find("div.progress div.bar");
+          bar.width(_value+'%');
+          var timer = setInterval(function() {
+            if (_value >= 100) {
+              bar.width('100%');
+              window.clearInterval(timer);
+              return;
+            }
+            _value += .3;
+            bar.width(_value+'%');
+          }, 2);
+        }
+      });
+      _notice.pnotify();
+      $.ajax({
+        url: '<%= url.skills_path %>/'+self.characterID()+'/import',
+        dataType: 'json',
+        type: 'GET'
+      }).then(function(data){
+        _value = 100;
+      }).done(function(data){
+        setTimeout(function(){
+          _notice.fadeOut(function(){
+            $(this).remove();
+          });
+        },500);
+      });
+      return false;
     };
   };
 
@@ -67,6 +108,36 @@ evefits.navbar = function(){
     });
   };
 
+  var _Spinner = function(){
+    var self = this;
+    var opts = {
+      lines: 11, // The number of lines to draw
+      length: 5, // The length of each line
+      width: 2, // The line thickness
+      radius: 5, // The radius of the inner circle
+      corners: 1, // Corner roundness (0..1)
+      rotate: 0, // The rotation offset
+      direction: 1, // 1: clockwise, -1: counterclockwise
+      color: '#fff', // #rgb or #rrggbb
+      speed: 1, // Rounds per second
+      trail: 60, // Afterglow percentage
+      shadow: true, // Whether to render a shadow
+      hwaccel: false, // Whether to use hardware acceleration
+      className: 'spinner', // The CSS class to assign to the spinner
+      zIndex: 2e9, // The z-index (defaults to 2000000000)
+      top: 'auto', // Top position relative to parent in px
+      left: 'auto' // Left position relative to parent in px
+    };
+    var spinner = new Spinner(opts);
+
+    self.start = function(){
+      spinner.spin(document.getElementById('spinner'));
+    };
+    self.stop = function(){
+      spinner.stop();
+    };
+  };
+
   var _init = function(args){
     ko.applyBindings(_nav, document.getElementById("nav"));
     _getCharacters();
@@ -74,6 +145,8 @@ evefits.navbar = function(){
   };
 
   var _nav = new _viewModel();
+  var _spinner = new _Spinner();
 
-  return {init:_init};
+  return {init:_init,
+          spinner:_spinner};
 }();

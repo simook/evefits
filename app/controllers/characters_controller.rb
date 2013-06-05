@@ -8,7 +8,7 @@ class CharactersController < ApplicationController
   end
 
   def new
-   @character = Character.new
+   @character = current_user.characters.new
   end
 
   def show
@@ -41,10 +41,9 @@ class CharactersController < ApplicationController
     data.each do |char|
       char.delete "selected"
       char.delete "avatar"
-      char["user_id"] = current_user.id
     end
 
-    @characters = Character.create(data)
+    @characters = current_user.characters.create(data)
     respond_to do |format|
       if @characters
         format.json { render :json => {:status => 'created'}}

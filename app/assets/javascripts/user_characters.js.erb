@@ -17,7 +17,6 @@ evefits.user.characters = function(){
     self.characters = ko.observableArray();
     self.importCharacters = ko.observableArray();
     self.loadingCharacters = ko.observable(true);
-    self.defaultCharacter = ko.observable();
   };
 
   var _getCharacters = function(){
@@ -30,21 +29,6 @@ evefits.user.characters = function(){
       for (var i = 0; i < data.length; i++) {
        _edit.characters.push(new _Character(data[i]));
       };
-    });
-  };
-
-  var _defaultCharacter = function(){
-    $.ajax({
-      url: '<%= url.default_characters_path %>',
-      dataType: 'json',
-      type: 'GET'
-    }).done(function(data){
-      _edit.defaultCharacter(false);
-      ko.utils.arrayFirst(_edit.characters(), function(character){
-        if(character.characterID() === data.characterID){
-          _edit.defaultCharacter(character);
-        }
-      });
     });
   };
 
@@ -69,24 +53,14 @@ evefits.user.characters = function(){
         self.selected(true);
       }
     };
-    self.makeDefault = function(){
-      $.ajax({
-        url: '<%= url.characters_path %>/'+self.characterID()+'/set_default',
-        dataType: 'json',
-        type: 'POST'
-      }).done(function(data){
-        if(data.status && data.status === 'ok'){
-          _edit.defaultCharacter(self);
-          _defaultCharacter();
-        }
-      });
-    };
   };
 
   ko.bindingHandlers.wizard = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
       var options = valueAccessor();
       var wizard = $('#'+options.id).wizard(options.options);
+
+      $(wizard.el).appendTo('#app');
 
       $(element).on('click', function(){
         wizard.show();
@@ -154,7 +128,6 @@ evefits.user.characters = function(){
   var _init = function(args){
     ko.applyBindings(_edit, document.getElementById("app"));
     _getCharacters();
-    _defaultCharacter();
   };
 
   return {

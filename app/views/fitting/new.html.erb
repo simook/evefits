@@ -14,7 +14,7 @@
   </ul>
 </div>
 <div class="container-fluid padded">
-  <div class="row-fluid">
+  <div class="row-fluid" data-spy="affix" data-offset-top="155">
     <%= simple_form_for @fitting, :url => url_for(:action => 'create', :controller => 'fitting'), :method => 'post', :html => {:class => 'well' } do |f| %>
       <div class="row-fluid">
         <div class="span6">

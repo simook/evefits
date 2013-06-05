@@ -1,5 +1,14 @@
 require 'spec_helper'
 
 describe Character do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+  it "has a valid factory" do
+    FactoryGirl.build(:character).should be_valid
+  end
+
+  it "should have skills after being created" do
+    character = FactoryGirl.create(:character)
+    expect(character.skills).to_not be_nil
+  end
+
 end

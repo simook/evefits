@@ -99,7 +99,7 @@ evefits.fittings.create = function(){
   var _scrollToElement = function(tab,ship){
     $('.ships li',tab).each(function(){
       if(ko.dataFor(this) === ship){
-        $('html, body').animate({scrollTop: $(this).offset().top - 100}, 2000);
+        $('html, body').animate({scrollTop: $(this).offset().top - 250}, 2000);
       }
     });
   };

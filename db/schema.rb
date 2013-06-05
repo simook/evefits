@@ -11,7 +11,19 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130604190718) do
+ActiveRecord::Schema.define(:version => 20130605040955) do
+
+  create_table "character_skills", :force => true do |t|
+    t.integer  "character_id"
+    t.integer  "typeID"
+    t.string   "skillpoints"
+    t.string   "level"
+    t.integer  "published"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "character_skills", ["character_id"], :name => "index_character_skills_on_character_id"
 
   create_table "characters", :force => true do |t|
     t.integer  "user_id"

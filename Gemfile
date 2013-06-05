@@ -11,6 +11,7 @@ end
 
 group :development do
   gem "pry-rails"
+  gem "factory_girl_rails"
   gem "rspec-rails", ">= 2.12.2"
   gem "guard-bundler", ">= 1.0.0"
   gem "guard-rails", ">= 0.4.0"
@@ -21,6 +22,16 @@ group :development do
   gem "quiet_assets", ">= 1.0.2"
   gem "better_errors", ">= 0.7.2"
   gem "binding_of_caller", ">= 0.7.1", :platforms => [:mri_19, :rbx]
+  gem "faker"
+end
+
+group :test do
+  gem 'faker'
+  gem 'capybara'
+  gem 'guard-rspec', ">= 2.5.2"
+  gem 'launchy'
+  gem "factory_girl_rails"
+  gem "rspec-rails", ">= 2.12.2"
 end
 
 gem 'jquery-rails'

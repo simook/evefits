@@ -16,4 +16,6 @@
 //= require knockout-2.2.1
 //= require jquery.icheck
 //= require bootstrap-wizard
+//= require jquery.pnotify
+//= require spin.min.js
 //= require_tree .

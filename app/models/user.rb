@@ -1,20 +1,26 @@
 class User < ActiveRecord::Base
   rolify
-  # Include default devise modules. Others available are:
-  # :token_authenticatable, :confirmable,
-  # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :trackable
 
-  # Virtual attribute for authenticating by either username or email
-  # This is in addition to a real persisted field like 'username'
   attr_accessor :login
 
-  # Setup accessible (or protected) attributes for your model
   attr_accessible :role_ids, :as => :admin
-  attr_accessible :email, :password, :password_confirmation, :remember_me, :username
-  attr_accessible :login
+  attr_accessible :email, :password, :password_confirmation, :remember_me, :login, :username
 
-  validates_uniqueness_of :username
+  validates :username,
+    :presence => true,
+    :uniqueness => true,
+    :allow_blank => false
+  validates :password,
+    :presence => true,
+    :allow_blank => false,
+    :confirmation => true,
+    :length => {
+      :minimum => 5,
+      :maximum => 20,
+      :too_short => "must be at least 5 characters",
+      :too_long => "nice password, but it needs to be less than 20 characters"
+    }
 
   has_many :fittings
   has_many :characters

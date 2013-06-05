@@ -38,3 +38,6 @@
     }
   }
 }
+.loading {
+  @include filter(blur(5px));
+}
