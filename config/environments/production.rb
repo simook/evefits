@@ -1,5 +1,9 @@
 Evefits::Application.configure do
-  # Settings specified here will take precedence over those in config/application.rb
+  services = JSON.parse(ENV['VCAP_SERVICES'])
+  redis_key = services.keys.select { |svc| svc =~ /redis/i }.first
+  redis = services[redis_key].first['credentials']
+
+  config.cache_store = :redis_store, {:host => redis['hostname'], :port => redis['port'], :password => redis['password']}
 
   # Code is not reloaded between requests
   config.cache_classes = true
