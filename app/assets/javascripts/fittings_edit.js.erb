@@ -30,8 +30,20 @@ evefits.fittings.edit = function(){
     self.selectMarketGroup = function(element){
       self.selectedMarketGroup(element);
     };
-    self.backMarketGroup = function(){
-      self.selectedMarketGroup(false);
+    self.backMarketGroup = function(element){
+      var _whoIsMyParent = function(group, parent){
+        var parent = parent || false;
+        ko.utils.arrayForEach(group.marketGroups(), function(group){
+          if(group === element){
+            self.selectedMarketGroup(parent);
+          } else {
+            if(group.hasOwnProperty('marketGroups')){
+              _whoIsMyParent(group, group);
+            }
+          }
+        });
+      };
+      _whoIsMyParent(self);
     };
     self.addModule = function(element){
       ko.utils.arrayFirst(self.ship().slots(), function(slot){
@@ -642,6 +654,7 @@ evefits.fittings.edit = function(){
     self.id = ko.observable(args.marketGroupID);
     self.marketGroups = ko.observableArray();
     self.modules = ko.observableArray();
+    self.selectedMarketGroup = ko.observable();
     if(args.groups){
       for (var i = 0; i < args.groups.length; i++) {
         self.marketGroups.push(new _Group(args.groups[i]));
