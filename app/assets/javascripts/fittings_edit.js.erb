@@ -27,6 +27,14 @@ evefits.fittings.edit = function(){
     self.chargeGroups = ko.observableArray();
     self.selectedMarketGroup = ko.observable();
     self.fittingLoaded = ko.observable(false);
+    self.moduleSearchState = ko.observable(false);
+    self.moduleSearch = function(){
+      if(self.moduleSearchState()){
+        self.moduleSearchState(false);
+      } else {
+        self.moduleSearchState(true);
+      }
+    };
     self.selectMarketGroup = function(element){
       self.selectedMarketGroup(element);
     };

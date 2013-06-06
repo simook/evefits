@@ -38,6 +38,12 @@
     }
   }
 }
+.search {
+  border-bottom: 1px solid #eee;
+  .input-append {
+    margin-bottom: 0px;
+  }
+}
 .loading {
   @include filter(blur(5px));
 }

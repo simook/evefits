@@ -38,8 +38,19 @@
             <!-- ko ifnot: selectedMarketGroup -->
               <div class="title">Modules</div>
             <!-- /ko -->
+            <%#<ul class="box-toolbar">
+              <li>
+                <button class="btn btn-mini" type="button" data-bind="click: moduleSearch" data-toggle="button"><i class="icon-search"></i></button>
+              </li>
+            </ul>%>
           </div>
           <div class="box-content">
+            <%#<div class="padded search" data-bind="visible: moduleSearchState">
+              <div class="input-append row-fluid">
+                <input class="span9" type="text" placeholder="Search for modules">
+                <button class="btn" type="button">Search</button>
+              </div>
+            </div>%>
             <!-- ko ifnot: selectedMarketGroup -->
               <ul class="nav nav-list" data-bind="foreach: marketGroups">
                 <li><a href="#" data-bind="text:name, click: $parent.selectMarketGroup"></a></li>
