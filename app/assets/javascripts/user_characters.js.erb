@@ -85,7 +85,7 @@ evefits.user.characters = function(){
           }).done(function(data){
             if(data.status === 'ok'){
               _edit.loadingCharacters(false);
-              if(data.key.accessMask < '8'){
+              if(parseInt(data.key.accessMask) < '8'){
                 //todo
               } else {
                 _edit.importCharacters.removeAll();
