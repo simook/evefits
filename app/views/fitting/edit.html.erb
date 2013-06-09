@@ -268,7 +268,7 @@
             <div class="row-fluid">
               <div class="span7">
                 <img src="<%= asset_path('items/1_64_4.png') %>" class="pull-left margin-right" width="20px" />
-                <span data-bind="formatNumber:{number:capacitor(), power:1000}"></span> <small class="muted">GJ</small><br/>
+                <span data-bind="formatNumber:{number:capacitor(), power:1000, precision: 2}"></span> <small class="muted">GJ</small><br/>
                 <span data-bind="text:rechargeTime"></span> <small class="muted">Recharge time</small>
               </div>
               <div class="span5">
@@ -434,18 +434,10 @@
     </td>
   <!-- /ko -->
   <!-- ko if: slotType() === 'empty' -->
-    <td></td>
-    <td></td>
+    <td colspan="2"></td>
     <td><img class="pull-right" data-bind="attr:{src:icon}" width="16px" /></td>
     <td><b data-bind="text:name"></b></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
+    <td colspan="8"></td>
   <!-- /ko -->
 </tr>
 </script>

@@ -363,8 +363,9 @@ evefits.fittings.edit = function(){
       });
       if(freeSlot){
         if(duplicateModule){
-          self.slots.replace(freeSlot, duplicateModule);
-          self.modules.push(duplicateModule);
+          var clonedModule = _cloneModule(duplicateModule);
+          self.slots.replace(freeSlot, clonedModule);
+          self.modules.push(clonedModule);
         } else {
           element.getAttributes();
           self.slots.replace(freeSlot, element);
@@ -372,6 +373,12 @@ evefits.fittings.edit = function(){
         }
         if(shouldUpdate){
           _updateFitting({method:'add',module:element.id()});
+        }
+      } else {
+        _debug('Add Module: No free slots left for '+element.name());
+        if(!shouldUpdate){
+          // this shouldnt happen and we should just probably delete it from the database
+          _updateFitting({method:'remove',module:element.id()});
         }
       }
     };
@@ -389,7 +396,7 @@ evefits.fittings.edit = function(){
           element.chargeSize() === module.chargeSize()){
           if(module.charge()){
             if(shouldUpdate){
-              _updateFitting({method:'remove',module:module.charge().id()});
+                ({method:'remove',module:module.charge().id()});
             }
           }
           if(shouldUpdate){
@@ -1084,6 +1091,36 @@ evefits.fittings.edit = function(){
     });
   };
 
+  var _updateModule = function(args){
+    if(!_edit.fittingLoaded()) {return false}
+    _debug('Update Module: '+ ko.toJSON(args));
+    $.ajax({
+      url: _edit.config().updateFittingPath,
+      type: 'PUT',
+      dataType: 'json',
+      data: args
+    });
+  };
+
+  var _cloneModule = function(existingModule){
+    var _createNewModule = function(module){
+      var json = ko.toJSON(module);
+      var js = JSON.parse(json);
+      return ko.utils.cloneObservable(new _Module(js), js);
+    };
+    var module = _createNewModule(existingModule);
+    if(existingModule.hasAttributes()){
+      ko.utils.copyAttributes(existingModule, module);
+    } else {
+      existingModule.hasAttributes.subscribe(function(value){
+        if(value){
+          ko.utils.copyAttributes(existingModule, module);
+        }
+      });
+    }
+    return module;
+  };
+
   var _importFitting = function(args){
     _debug('Fitting: Importing the fitting.');
     var dfr = $.Deferred();
@@ -1316,7 +1353,58 @@ evefits.fittings.edit = function(){
         });
       }
     }
-  }
+  };
+
+  ko.utils.extendObservable = function ( target, source ) {
+    var prop, srcVal, tgtProp, srcProp,
+        isObservable = false;
+    for ( prop in source ) {
+        if ( !source.hasOwnProperty( prop ) ) {
+            continue;
+        }
+        if ( ko.isWriteableObservable( source[prop] ) ) {
+            isObservable = true;
+            srcVal = source[prop]();
+        } else if ( typeof ( source[prop] ) !== 'function' ) {
+            srcVal = source[prop];
+        }
+        if ( ko.isWriteableObservable( target[prop] ) ) {
+            target[prop]( srcVal );
+        } else if ( target[prop] === null || target[prop] === undefined ) {
+            target[prop] = isObservable ? ko.observable( srcVal ) : srcVal;
+        } else if ( typeof ( target[prop] ) !== 'function' ) {
+            target[prop] = srcVal;
+        }
+        isObservable = false;
+    }
+  };
+
+  ko.utils.copyAttributes = function(from, to){
+    for(prop in from){
+      if(!to.hasOwnProperty(prop)) { continue }
+      if(ko.isWriteableObservable(to[prop])) {
+        var value;
+        if(typeof from[prop] === 'function'){
+          if(from[prop]() === undefined || from[prop]() === null) { continue }
+          value = from[prop]();
+        } else {
+          if(from[prop] === undefined || from[prop] === null) { continue }
+          value = from[prop];
+        }
+        to[prop](value);
+      }
+    }
+  };
+
+  ko.utils.cloneObservable = function(target, source){
+    for(prop in source){
+      if(!target.hasOwnProperty(prop)) { continue }
+      if(ko.isWriteableObservable(target[prop])) {
+        target[prop](source[prop]);
+      }
+    }
+    return target;
+  };
 
   var _edit = new _viewModel();
 

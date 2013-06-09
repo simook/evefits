@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130605040955) do
+ActiveRecord::Schema.define(:version => 20130606233451) do
 
   create_table "character_skills", :force => true do |t|
     t.integer  "character_id"
@@ -178,10 +178,13 @@ ActiveRecord::Schema.define(:version => 20130605040955) do
   create_table "ship_modules", :force => true do |t|
     t.integer  "fitting_id"
     t.integer  "invTypes_id"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
+    t.integer  "chargeTypes"
+    t.integer  "chargeTypes_id"
   end
 
+  add_index "ship_modules", ["chargeTypes_id"], :name => "index_ship_modules_on_chargeTypes_id"
   add_index "ship_modules", ["fitting_id"], :name => "index_ship_modules_on_fitting_id"
   add_index "ship_modules", ["invTypes_id"], :name => "index_ship_modules_on_invTypes_id"
 

@@ -194,18 +194,3 @@
   background: transparent;
   padding: 0px 15px;
 }
-.affix {
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  z-index: 1000;
-  .well {
-    @include background(linear-gradient(top, #33393d, #11161a));
-    @include border-radius(0px);
-    border: none;
-    border-bottom: 0 1px 0 rgba(255,255,255,.25);
-    margin: 0px;
-    min-height: 20px;
-    @include box-shadow(0 2px 5px rgba(0,0,0,.2));
-  }
-}

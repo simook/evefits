@@ -12,7 +12,11 @@ Evefits::Application.routes.draw do
       get 'default'
     end
   end
-  resources :fitting
+  resources :fitting do
+    member do
+      post 'charge'
+    end
+  end
   namespace :api do
     resources :ships, :only => [:index, :show]
     resources :skills, :only => :index
