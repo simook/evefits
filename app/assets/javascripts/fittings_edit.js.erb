@@ -396,11 +396,11 @@ evefits.fittings.edit = function(){
           element.chargeSize() === module.chargeSize()){
           if(module.charge()){
             if(shouldUpdate){
-                ({method:'remove',module:module.charge().id()});
+              _updateModuleCharge({method:'remove', module:module.id(), charge:module.charge().id()});
             }
           }
           if(shouldUpdate){
-              _updateFitting({method:'add',module:element.id()});
+            _updateModuleCharge({method:'add', module:module.id(), charge:element.id()});
           }
           module.charge(element);
         }
@@ -1091,11 +1091,11 @@ evefits.fittings.edit = function(){
     });
   };
 
-  var _updateModule = function(args){
+  var _updateModuleCharge = function(args){
     if(!_edit.fittingLoaded()) {return false}
-    _debug('Update Module: '+ ko.toJSON(args));
+    _debug('Update Module Charge: '+ ko.toJSON(args));
     $.ajax({
-      url: _edit.config().updateFittingPath,
+      url: _edit.config().updateModuleChargePath,
       type: 'PUT',
       dataType: 'json',
       data: args

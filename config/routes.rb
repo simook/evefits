@@ -14,7 +14,7 @@ Evefits::Application.routes.draw do
   end
   resources :fitting do
     member do
-      post 'charge'
+      put 'charge'
     end
   end
   namespace :api do

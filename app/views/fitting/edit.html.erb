@@ -445,7 +445,8 @@
   $(function() {
     var config = {
       updateFittingPath: '<%= fitting_path(params[:id]) %>',
-      editFittingPath: '<%= edit_fitting_path(params[:id]) %>'
+      editFittingPath: '<%= edit_fitting_path(params[:id]) %>',
+      updateModuleChargePath: '<%= charge_fitting_path(params[:id]) %>'
     };
     evefits.fittings.edit.init(config);
   });

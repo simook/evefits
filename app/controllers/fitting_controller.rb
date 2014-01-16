@@ -72,8 +72,7 @@ class FittingController < ApplicationController
   def charge
     method = params[:method]
     if method === 'add'
-      @module = ShipModule.where(:fitting_id => params[:id], :invTypes_id => params[:module])
-      binding.pry
+      @module = ShipModule.where(:fitting_id => params[:id], :invTypes_id => params[:module], :chargeTypes_id => nil).first
       @module.chargeTypes_id = params[:charge]
       respond_to do |format|
         if @module.save
@@ -83,9 +82,10 @@ class FittingController < ApplicationController
         end
       end
     elsif method === 'remove'
-      @module = ShipModule.where(:fitting_id => params[:id], :invTypes_id => params[:module]).all
+      @module = ShipModule.where(:fitting_id => params[:id], :invTypes_id => params[:module], :chargeTypes_id => params[:charge]).first
+      @module.chargeTypes_id = nil
       respond_to do |format|
-        if ShipModule.delete(@module)
+        if @module.save
           format.json {render :json => {:status => 'deleted'}}
         else
           format.json {render :json => {:status => 'bad'}}
